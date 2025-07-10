@@ -277,7 +277,8 @@ class GammaPressureAnalyzer:
         )
         
         # 4. 自适应特征提取（为学习模块预留）
-        if self.config['learning_params']['feature_extraction'] == 'auto':
+        feature_mode = self.config.get('learning_params', {}).get('feature_extraction', 'manual')
+        if feature_mode == 'auto':
             indicators['adaptive_features'] = self._extract_adaptive_features(
                 gamma_dist, walls, spot
             )

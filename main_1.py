@@ -68,6 +68,9 @@ class GammaSqueezeSystem:
                 'gamma_decay_factor': 0.95,
                 'hedge_flow_threshold': 0.7
             },
+            'learning_params': {
+            'feature_extraction': 'manual' 
+            },
             'display_interval': 10,  # 每10秒显示一次统计信息
             'debug_mode': True,      # 调试模式
             'phase2_debug': True     # 阶段2详细调试
