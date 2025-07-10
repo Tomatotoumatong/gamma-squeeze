@@ -152,9 +152,15 @@ class GammaSqueezeSystem:
                 if 'price' in symbol_data.columns:
                     latest_price = symbol_data['price'].iloc[-1]
                     price_change = ((symbol_data['price'].iloc[-1] / symbol_data['price'].iloc[0]) - 1) * 100
-                    volume = symbol_data['volume'].sum()
-                    print(f"   {symbol}: ${latest_price:,.2f} ({price_change:+.2f}%) | Vol: {volume:,.0f}")
-                    
+                    latest_volume = symbol_data['volume'].iloc[-1]
+                    if 'quote_volume' in symbol_data.columns:
+                        quote_volume = symbol_data['quote_volume'].iloc[-1]
+                        if 'BTC' in symbol:
+                            print(f"   {symbol}: ${latest_price:,.2f} ({price_change:+.2f}%) | 24h Vol: {latest_volume:,.2f} BTC (${quote_volume/1e6:,.1f}M USDT)")
+                        else:
+                            print(f"   {symbol}: ${latest_price:,.2f} ({price_change:+.2f}%) | 24h Vol: {latest_volume:,.0f} ETH (${quote_volume/1e6:,.1f}M USDT)")
+                    else:
+                        print(f"   {symbol}: ${latest_price:,.2f} ({price_change:+.2f}%) | 24h Vol: {latest_volume:,.0f}")
         # 期权数据统计
         option_data = df[df['data_type'] == 'option']
         if not option_data.empty:
