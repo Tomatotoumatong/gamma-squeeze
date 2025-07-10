@@ -77,7 +77,7 @@ class DeribitSource(DataSource):
                 instruments = await self._get_instruments(symbol)
                 
                 # 获取期权数据
-                for instrument in instruments[:20]:  # 限制数量避免过多请求
+                for instrument in instruments[:60]:  # 限制数量避免过多请求
                     option_data = await self._get_option_data(instrument['instrument_name'])
                     if option_data:
                         data_points.append(DataPoint(
@@ -102,9 +102,9 @@ class DeribitSource(DataSource):
                 logger.error(f"Error fetching Deribit data for {symbol}: {e}")
                 
         return data_points
-        
+            
     async def _get_instruments(self, currency: str) -> List[Dict]:
-        """获取期权合约列表"""
+        """获取期权合约列表 - 优化版"""
         url = f"{self.base_url}/get_instruments"
         params = {
             'currency': currency,
@@ -114,8 +114,97 @@ class DeribitSource(DataSource):
         
         async with self.session.get(url, proxy=proxy_url, params=params) as resp:
             data = await resp.json()
-            return data.get('result', [])
+            instruments = data.get('result', [])
             
+        if not instruments:
+            return []
+        
+        spot_price = await self._get_spot_price(currency)
+        if not spot_price:
+            logger.warning(f"无法获取{currency}现货价格，使用默认排序")
+            return instruments[:60]  # 统一为60个
+        
+        # 过滤和排序期权
+        valid_instruments = []
+        for inst in instruments:
+            # 解析到期时间
+            expiry_ms = inst.get('expiration_timestamp', 0)
+            days_to_expiry = (expiry_ms - datetime.now().timestamp() * 1000) / (1000 * 86400)
+            
+            # 只选择90天内到期的期权
+            if days_to_expiry <= 0 or days_to_expiry > 90:
+                continue
+                
+            # 计算行权价相对现货的偏离度
+            strike = inst.get('strike', 0)
+            if strike <= 0:
+                continue
+                
+            moneyness = abs(strike - spot_price) / spot_price
+            
+            # 只选择偏离度在30%以内的期权
+            if moneyness > 0.3:
+                continue
+                
+            inst['moneyness'] = moneyness
+            inst['days_to_expiry'] = days_to_expiry
+            valid_instruments.append(inst)
+        
+        # 按照多个维度排序
+        # 1. 先按到期日分组（近月优先）
+        # 2. 每个到期日内，按行权价距离排序
+        valid_instruments.sort(key=lambda x: (
+            int(x['days_to_expiry'] / 7),  # 按周分组
+            x['moneyness']  # 按价格距离排序
+        ))
+        
+        # 确保包含不同行权价的期权
+        selected = []
+        strikes_above = set()
+        strikes_below = set()
+        strikes_at = set()
+        
+        for inst in valid_instruments:
+            strike = inst['strike']
+            
+            # 分类期权
+            if strike > spot_price * 1.01:  # 高于现价1%
+                if strike not in strikes_above:
+                    strikes_above.add(strike)
+                    selected.append(inst)
+            elif strike < spot_price * 0.99:  # 低于现价1%
+                if strike not in strikes_below:
+                    strikes_below.add(strike)
+                    selected.append(inst)
+            else:  # ATM附近
+                if strike not in strikes_at:
+                    strikes_at.add(strike)
+                    selected.append(inst)
+            
+            # 限制总数但确保平衡
+            if len(selected) >= 60:  # 增加到60个
+                break
+        
+        # 确保有足够的高低行权价期权
+        logger.info(f"{currency}期权选择: ATM={len(strikes_at)}, "
+                    f"Above={len(strikes_above)}, Below={len(strikes_below)}")
+        
+        return selected
+
+    async def _get_spot_price(self, currency: str) -> Optional[float]:
+        """获取现货价格"""
+        url = f"{self.base_url}/get_index_price"
+        params = {'index_name': f'{currency.lower()}_usd'}
+        
+        try:
+            async with self.session.get(url, proxy=proxy_url, params=params) as resp:
+                data = await resp.json()
+                return data.get('result', {}).get('index_price')
+        except Exception as e:
+            logger.error(f"获取{currency}现货价格失败: {e}")
+            return None
+    
+
     async def _get_option_data(self, instrument: str) -> Optional[Dict]:
         """获取单个期权数据"""
         url = f"{self.base_url}/ticker"
