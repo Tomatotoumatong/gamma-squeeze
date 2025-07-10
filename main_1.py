@@ -27,7 +27,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('gamma_squeeze_system.log'),
+        logging.FileHandler('test_output/gamma_squeeze_system.log'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -63,10 +63,10 @@ class GammaSqueezeSystem:
             },
             'gamma_analysis': {
                 'interval': 60,  # 60秒分析一次
-                'wall_percentile': 90,
+                'wall_percentile': 80,
                 'history_window': 100,
                 'gamma_decay_factor': 0.95,
-                'hedge_flow_threshold': 0.7
+                'hedge_flow_threshold': 0.6
             },
             'learning_params': {
             'feature_extraction': 'manual' 
@@ -208,6 +208,9 @@ class GammaSqueezeSystem:
             option_data['symbol'] = option_data['mapped_symbol']
             option_data = option_data.drop('mapped_symbol', axis=1)
         
+            if 'iv' in option_data.columns:
+                option_data['iv'] = option_data['iv'] / 100.0 
+
         return option_data, spot_data
         
     def _print_gamma_analysis_debug(self, result: Dict[str, Any]):
@@ -224,25 +227,40 @@ class GammaSqueezeSystem:
             print(f"   Concentration (Gini): {dist.get('concentration', 0):.3f}")
             
             # 打印前5个gamma点
-            profile = dist.get('profile', [])[:5]
+            # profile = dist.get('profile', [])[:5]
+            profile = dist.get('profile', [])
             if profile:
                 print(f"   Top Gamma Points:")
                 for point in profile:
-                    print(f"     Strike: {point['strike']:,} | Gamma: {point['gamma_exposure']:,.2f}")
+                    print(f"     Strike: {point['strike']:,} | Gamma: {point['gamma_exposure']:,.5f}")
         
         # 2. Gamma墙
         print(f"\n{Fore.GREEN}2. Gamma Walls:{Style.RESET_ALL}")
         walls = result.get('gamma_walls', [])
         if walls:
-            for i, wall in enumerate(walls[:5]):  # 最多显示5个
-                print(f"   Wall #{i+1}:")
-                print(f"     Strike: {wall.strike:,}")
-                print(f"     Position: {wall.position}")
-                print(f"     Distance: {wall.distance_pct:.2f}%")
-                print(f"     Strength: {wall.strength:.2f}")
-                print(f"     Gamma Exposure: {wall.gamma_exposure:,.2f}")
+            walls_above = [w for w in walls if w.position == 'above'][:5]
+            walls_below = [w for w in walls if w.position == 'below'][:5]
+            
+            if walls_above:
+                print("   Walls Above Current Price:")
+                for i, wall in enumerate(walls_above):
+                    print(f"     Wall #{i+1}:")
+                    print(f"       Strike: {wall.strike:,}")
+                    print(f"       Distance: {wall.distance_pct:.2f}%")
+                    print(f"       Strength: {wall.strength:.2f}")
+                    print(f"       Gamma Exposure: {wall.gamma_exposure:,.2f}")
+                    
+            if walls_below:
+                print("   Walls Below Current Price:")
+                for i, wall in enumerate(walls_below):
+                    print(f"     Wall #{i+1}:")
+                    print(f"       Strike: {wall.strike:,}")
+                    print(f"       Distance: {wall.distance_pct:.2f}%")
+                    print(f"       Strength: {wall.strength:.2f}")
+                    print(f"       Gamma Exposure: {wall.gamma_exposure:,.2f}")
         else:
             print("   No significant gamma walls detected")
+        
         
         # 3. 做市商头寸
         print(f"\n{Fore.MAGENTA}3. Dealer Positions:{Style.RESET_ALL}")
@@ -317,7 +335,7 @@ class GammaSqueezeSystem:
         if self.collector:
             # 导出最终数据
             logger.info("💾 Exporting collected data...")
-            self.collector.export_data(f'gamma_data_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
+            self.collector.export_data(f'test_output/gamma_data_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
             
             # 导出分析结果
             if self.analysis_results:
@@ -332,7 +350,7 @@ class GammaSqueezeSystem:
         """导出分析结果"""
         try:
             import json
-            filename = f'gamma_analysis_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+            filename = f'test_output/gamma_analysis_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
             
             # 转换为可序列化格式
             exportable_results = []

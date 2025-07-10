@@ -161,9 +161,10 @@ class GammaPressureAnalyzer:
         """计算单位Gamma"""
         try:
             from scipy.stats import norm
-            
-            # 转换到年化时间
-            T_years = T / (365 * 86400 * 1000) if T > 1e6 else T / 365
+            import time
+            current_time_ms = time.time() * 1000
+            remaining_time_ms = T - current_time_ms
+            T_years = remaining_time_ms / (365 * 24 * 60 * 60 * 1000)
             
             if T_years <= 0 or sigma <= 0:
                 return 0.0
