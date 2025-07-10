@@ -163,7 +163,7 @@ class GammaSqueezeSystem:
                 symbol_options = option_data[option_data['symbol'] == symbol]
                 total_oi = symbol_options['open_interest'].sum() if 'open_interest' in symbol_options.columns else 0
                 avg_iv = symbol_options['iv'].mean() if 'iv' in symbol_options.columns else 0
-                print(f"   {symbol}: Contracts: {len(symbol_options)} | Total OI: {total_oi:,.0f} | Avg IV: {avg_iv:.1%}")
+                print(f"   {symbol}: Contracts: {len(symbol_options)} | Total OI: {total_oi:,.0f} | Avg IV: {avg_iv:.1f}%")
                 
         # 订单簿数据统计
         orderbook_data = df[df['data_type'] == 'orderbook']
@@ -207,7 +207,7 @@ class GammaSqueezeSystem:
             sample_options = option_data.head(3)
             for _, opt in sample_options.iterrows():
                 if all(k in opt for k in ['strike', 'iv', 'type']):
-                    print(f"   {opt['instrument']}: Strike={opt['strike']} IV={opt['iv']:.1%} Type={opt['type']}")
+                    print(f"   {opt['instrument']}: Strike={opt['strike']} IV={opt['iv']:.1f}% Type={opt['type']}")
                     
     async def shutdown(self):
         """关闭系统"""
