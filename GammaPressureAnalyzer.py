@@ -129,8 +129,10 @@ class GammaPressureAnalyzer:
                 opt.get('type', 'call')
             )
             
-            # 加权gamma = 单位gamma * 未平仓量
-            weighted_gamma = unit_gamma * opt.get('open_interest', 0)
+            price_normalized_gamma = unit_gamma * spot / 100
+            
+            # 加权gamma = 归一化gamma * 未平仓量
+            weighted_gamma = price_normalized_gamma * opt.get('open_interest', 0)
             
             # 考虑做市商通常是期权的净卖方
             gamma_by_strike[strike] -= weighted_gamma

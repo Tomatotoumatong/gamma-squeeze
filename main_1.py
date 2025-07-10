@@ -222,8 +222,8 @@ class GammaSqueezeSystem:
         print(f"\n{Fore.YELLOW}1. Gamma Distribution:{Style.RESET_ALL}")
         for symbol, dist in result.get('gamma_distribution', {}).items():
             print(f"\n   Symbol: {symbol}")
-            print(f"   Total Gamma Exposure: {dist.get('total_exposure', 0):,.2f}")
-            print(f"   Net Gamma Exposure: {dist.get('net_exposure', 0):,.2f}")
+            print(f"   Total Gamma Exposure: {dist.get('total_exposure', 0):.2e}")
+            print(f"   Net Gamma Exposure: {dist.get('net_exposure', 0):.2e}")
             print(f"   Concentration (Gini): {dist.get('concentration', 0):.3f}")
             
             # 打印前5个gamma点
@@ -267,7 +267,7 @@ class GammaSqueezeSystem:
         for symbol, pos in result.get('dealer_position', {}).items():
             print(f"\n   Symbol: {symbol}")
             print(f"   Net Delta: {pos.get('net_delta', 0):,.2f}")
-            print(f"   Net Gamma: {pos.get('net_gamma', 0):,.2f}")
+            print(f"   Net Gamma: {pos.get('net_gamma', 0):.2e}")  
             print(f"   Position Score: {pos.get('position_score', 0):.3f} ({'Short' if pos.get('position_score', 0) < 0 else 'Long'})")
             print(f"   Flow Imbalance: {pos.get('flow_imbalance', 0):.3f}")
         
