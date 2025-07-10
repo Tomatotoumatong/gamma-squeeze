@@ -20,6 +20,7 @@ from enum import Enum
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+proxy_url = "http://127.0.0.1:7890"
 # 数据类型枚举
 class DataType(Enum):
     OPTION = "option"
@@ -111,7 +112,7 @@ class DeribitSource(DataSource):
             'expired': 'false'
         }
         
-        async with self.session.get(url, params=params) as resp:
+        async with self.session.get(url, proxy=proxy_url, params=params) as resp:
             data = await resp.json()
             return data.get('result', [])
             
@@ -120,7 +121,7 @@ class DeribitSource(DataSource):
         url = f"{self.base_url}/ticker"
         params = {'instrument_name': instrument}
         
-        async with self.session.get(url, params=params) as resp:
+        async with self.session.get(url, proxy=proxy_url, params=params) as resp:
             data = await resp.json()
             return data.get('result')
 
@@ -182,7 +183,7 @@ class BinanceSource(DataSource):
         url = f"{self.base_url}/ticker/24hr"
         params = {'symbol': symbol}
         
-        async with self.session.get(url, params=params) as resp:
+        async with self.session.get(url, proxy=proxy_url, params=params) as resp:
             return await resp.json()
             
     async def _get_orderbook(self, symbol: str) -> Optional[Dict]:
@@ -190,7 +191,7 @@ class BinanceSource(DataSource):
         url = f"{self.base_url}/depth"
         params = {'symbol': symbol, 'limit': 20}
         
-        async with self.session.get(url, params=params) as resp:
+        async with self.session.get(url, proxy=proxy_url, params=params) as resp:
             return await resp.json()
 
 # Greeks计算器
