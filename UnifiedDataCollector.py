@@ -418,9 +418,9 @@ class UnifiedDataCollector:
             return
             
         latest_data = pd.concat(self.data_buffer[-100:], ignore_index=True)
-        
+        spot_data = latest_data[latest_data['data_type'] == 'spot']
         # 计算每个symbol的衍生指标
-        for symbol in latest_data['symbol'].unique():
+        for symbol in spot_data['symbol'].unique():
             symbol_data = latest_data[latest_data['symbol'] == symbol]
             
             # 价格加速度
