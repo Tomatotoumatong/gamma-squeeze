@@ -185,9 +185,9 @@ class DeribitSource(DataSource):
             if len(selected) >= 60:  # 增加到60个
                 break
         
-        # 确保有足够的高低行权价期权
-        logger.info(f"\n{currency}期权选择: ATM={len(strikes_at)}, "
-                    f"Above={len(strikes_above)}, Below={len(strikes_below)}")
+        # # 确保有足够的高低行权价期权
+        # logger.info(f"{currency}期权选择: ATM={len(strikes_at)}, "
+        #             f"Above={len(strikes_above)}, Below={len(strikes_below)}")
         
         return selected
 

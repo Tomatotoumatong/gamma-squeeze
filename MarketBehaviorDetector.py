@@ -61,7 +61,6 @@ class MarketBehaviorDetector:
             'order_flow': {
                 'sweep_threshold': 3.0,  # 扫单识别阈值（标准差）
                 'frequency_window': 60,  # 频率计算窗口（秒）
-                'volume_multiplier': 2.5  # 大额判定倍数
             },
             'divergence': {
                 'lookback_period': 20,  # 回看周期
@@ -339,6 +338,10 @@ class OrderFlowAnalyzer:
             return None
         
         # 4. 计算历史统计（排除当前值）
+        min_points = self.config.get('min_history_points', 30)
+        if len(self.volume_history[symbol]) < min_points:
+            return None
+            
         history = list(self.volume_history[symbol])[:-1]
         bid_depths = [h['bid_depth'] for h in history]
         ask_depths = [h['ask_depth'] for h in history]
@@ -357,7 +360,7 @@ class OrderFlowAnalyzer:
         ask_zscore = (ask_depth - ask_mean) / ask_std
         
         # 7. 使用配置的阈值判断
-        threshold = self.config['sweep_threshold']
+        threshold = self.get_adaptive_threshold(symbol)
         
         # 8. 检测扫单
         sweep = None

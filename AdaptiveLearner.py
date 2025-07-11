@@ -65,7 +65,6 @@ class AdaptiveLearner:
                     'signal_generation.min_confidence': (0.4, 0.7),
                     # 新增市场行为检测参数
                     'market_behavior.order_flow.sweep_threshold': (1.5, 4.0),
-                    'market_behavior.order_flow.volume_multiplier': (1.5, 4.0),
                     'market_behavior.order_flow.frequency_window': (30, 120),
                     'market_behavior.divergence.min_duration': (2, 10),
                     'market_behavior.divergence.lookback_period': (10, 50)

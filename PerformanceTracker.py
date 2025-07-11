@@ -32,16 +32,16 @@ class SignalPerformance:
     time_horizon: str
     
     # 实际表现
+    price_1h: Optional[float] = None
     price_2h: Optional[float] = None
     price_4h: Optional[float] = None
-    price_6h: Optional[float] = None
-    price_12h: Optional[float] = None
+    price_8h: Optional[float] = None
     
     # 计算指标
+    actual_move_1h: Optional[float] = None
     actual_move_2h: Optional[float] = None
     actual_move_4h: Optional[float] = None
-    actual_move_6h: Optional[float] = None
-    actual_move_12h: Optional[float] = None
+    actual_move_8h: Optional[float] = None
     
     direction_hit: Optional[bool] = None
     magnitude_accuracy: Optional[float] = None
@@ -67,7 +67,7 @@ class PerformanceTracker:
         """默认配置"""
         return {
             'db_path': 'signal_performance.csv',
-            'check_intervals': [2, 4, 6, 12],  # 小时
+            'check_intervals': [1, 2, 4, 8],  # 小时
             'expected_move_ranges': {
                 "1-2%": (1, 2),
                 "2-5%": (2, 5),
@@ -75,10 +75,10 @@ class PerformanceTracker:
                 "10%+": (10, 20)
             },
             'time_horizon_hours': {
-                "0-2h": 2,
-                "2-4h": 4,
-                "4-8h": 6,
-                "8-24h": 12
+                "0-1h": 1,
+                "1-2h": 2,
+                "4-8h": 4,
+                "8-24h": 8
             }
         }
         
@@ -89,9 +89,9 @@ class PerformanceTracker:
             df = pd.DataFrame(columns=[
                 'signal_id', 'signal_timestamp', 'asset', 'signal_type',
                 'direction', 'initial_price', 'strength', 'confidence',
-                'expected_move', 'time_horizon', 'price_2h', 'price_4h',
-                'price_6h', 'price_12h', 'actual_move_2h', 'actual_move_4h',
-                'actual_move_6h', 'actual_move_12h', 'direction_hit',
+                'expected_move', 'time_horizon', 'price_1h', 'price_2h', 'price_4h',
+                'price_8h', 'actual_move_1h', 'actual_move_2h', 'actual_move_4h',
+                'actual_move_8h', 'direction_hit',
                 'magnitude_accuracy', 'timing_accuracy', 'metadata',
                 'evaluation_complete', 'evaluation_timestamp'
             ])
@@ -309,10 +309,10 @@ Timing Accuracy: {performance.timing_accuracy:.2%}
 
 Price Trajectory:
 Initial: ${performance.initial_price:.2f}
+1h:  ${performance.price_1h:.2f} ({performance.actual_move_1h:+.2f}%)
 2h:  ${performance.price_2h:.2f} ({performance.actual_move_2h:+.2f}%)
 4h:  ${performance.price_4h:.2f} ({performance.actual_move_4h:+.2f}%)
-6h:  ${performance.price_6h:.2f} ({performance.actual_move_6h:+.2f}%)
-12h: ${performance.price_12h:.2f} ({performance.actual_move_12h:+.2f}%)
+8h:  ${performance.price_8h:.2f} ({performance.actual_move_8h:+.2f}%)
 ================================
 """
         print(summary)

@@ -464,7 +464,7 @@ async def main():
         'market_behavior': {
             'interval': 30,
             'order_flow': {
-                'sweep_threshold': 2.0,  # 降低阈值以检测更多扫单
+                'sweep_threshold': 2.5, 
                 'frequency_window': 60
             },
             'divergence': {
