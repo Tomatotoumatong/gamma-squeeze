@@ -691,40 +691,42 @@ class CrossMarketAnalyzer:
         }
     
     def _calculate_signal_strength(self, prices1: np.ndarray, prices2: np.ndarray,
-                                  lag: int, correlation: float) -> float:
+                                lag: int, correlation: float) -> float:
         """计算信号强度"""
-        # 基于相关性和稳定性
         strength = correlation
         
-        # 考虑相关性的稳定性
         if len(prices1) > 100:
-            # 滚动窗口相关性
             window = 50
             rolling_corrs = []
             
-            for i in range(window, len(prices1) - abs(lag)):
-                if lag < 0:
-                    corr = np.corrcoef(
-                        prices1[i-window:i+lag], 
-                        prices2[i-window-lag:i]
-                    )[0, 1]
-                elif lag > 0:
-                    corr = np.corrcoef(
-                        prices1[i-window+lag:i], 
-                        prices2[i-window:i-lag]
-                    )[0, 1]
-                else:
-                    corr = np.corrcoef(
-                        prices1[i-window:i], 
-                        prices2[i-window:i]
-                    )[0, 1]
+            # 修正循环范围，确保切片有效
+            start_idx = window + abs(lag)
+            end_idx = len(prices1) - abs(lag)
+            
+            for i in range(start_idx, end_idx):
+                try:
+                    if lag < 0:
+                        # prices1领先prices2
+                        slice1 = prices1[i-window:i]
+                        slice2 = prices2[i-window-lag:i-lag]
+                    elif lag > 0:
+                        # prices2领先prices1
+                        slice1 = prices1[i-window:i]
+                        slice2 = prices2[i-window+lag:i+lag]
+                    else:
+                        slice1 = prices1[i-window:i]
+                        slice2 = prices2[i-window:i]
                     
-                rolling_corrs.append(corr)
-                
-            # 稳定性因子
+                    # 确保切片长度相同且非空
+                    if len(slice1) == len(slice2) == window:
+                        corr = np.corrcoef(slice1, slice2)[0, 1]
+                        rolling_corrs.append(corr)
+                except:
+                    continue
+                    
             if rolling_corrs:
                 stability = 1 - np.std(rolling_corrs)
-                strength *= stability
+                strength *= max(0, stability)
                 
         return min(strength, 1.0)
 
