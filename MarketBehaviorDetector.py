@@ -73,6 +73,11 @@ class MarketBehaviorDetector:
                 'max_lag': 300,  # 最大延迟（秒）
                 'min_observations': 100  # 最小观测数
             },
+            'market_regime': {
+                'anomaly_threshold': 0.7,
+                'volatility_percentile': 0.3,
+                'volume_percentile': 0.7
+            },
             'learning_params': {
                 'enable_ml': True,
                 'update_frequency': 3600  # 模型更新频率（秒）
@@ -142,14 +147,18 @@ class MarketBehaviorDetector:
                 returns = spot_data.groupby('symbol')['price'].pct_change()
                 volatility = returns.std()
                 
-                # 成交量特征
                 volume_mean = spot_data.groupby('symbol')['volume'].mean()
                 volume_std = spot_data.groupby('symbol')['volume'].std()
                 
-                # 基于特征判断状态
-                high_anomaly = any(score > 0.7 for score in anomaly_scores.values())
-                low_volatility = volatility.mean() < np.quantile(volatility, 0.3)
-                high_volume = volume_mean.mean() > np.quantile(volume_mean, 0.7)
+                # 使用配置中的阈值
+                config = self.config.get('market_regime', {})
+                anomaly_threshold = config.get('anomaly_threshold', 0.7)
+                volatility_percentile = config.get('volatility_percentile', 0.3)
+                volume_percentile = config.get('volume_percentile', 0.7)
+                
+                high_anomaly = any(score > anomaly_threshold for score in anomaly_scores.values())
+                low_volatility = volatility.mean() < np.quantile(volatility, volatility_percentile)
+                high_volume = volume_mean.mean() > np.quantile(volume_mean, volume_percentile)
                 
                 if high_anomaly and low_volatility:
                     regime['state'] = 'squeeze'
@@ -270,7 +279,8 @@ class OrderFlowAnalyzer:
         self.config = config
         self.volume_history = defaultdict(lambda: deque(maxlen=1000))
         self.frequency_tracker = defaultdict(list)
-        
+        self.orderbook_fingerprint = {}
+
     def detect_sweeps(self, orderbook_data: pd.DataFrame, 
                      spot_data: pd.DataFrame) -> List[SweepOrder]:
         """检测扫单行为"""
@@ -309,41 +319,52 @@ class OrderFlowAnalyzer:
                     
         return sweeps
     
+
     def _analyze_orderbook_sweep(self, bids: List, asks: List, spot_price: float,
                                 symbol: str, timestamp: datetime) -> Optional[SweepOrder]:
         """分析订单簿扫单"""
-        # 计算订单簿深度和集中度
+        # 1. 计算当前深度
         bid_depth = sum(float(b[1]) for b in bids[:5])
         ask_depth = sum(float(a[1]) for a in asks[:5])
         
-        # 更新历史
+        # 2. 更新历史
         self.volume_history[symbol].append({
             'timestamp': timestamp,
             'bid_depth': bid_depth,
             'ask_depth': ask_depth
         })
         
-        # 计算历史统计
-        if len(self.volume_history[symbol]) < 10:
+        # 3. 需要足够的历史数据
+        if len(self.volume_history[symbol]) < 20:
             return None
-            
-        history = list(self.volume_history[symbol])
-        bid_depths = [h['bid_depth'] for h in history[:-1]]
-        ask_depths = [h['ask_depth'] for h in history[:-1]]
         
+        # 4. 计算历史统计（排除当前值）
+        history = list(self.volume_history[symbol])[:-1]
+        bid_depths = [h['bid_depth'] for h in history]
+        ask_depths = [h['ask_depth'] for h in history]
+        
+        # 5. 基础统计
         bid_mean = np.mean(bid_depths)
         bid_std = np.std(bid_depths)
         ask_mean = np.mean(ask_depths)
         ask_std = np.std(ask_depths)
         
-        # 检测异常
+        if bid_std == 0 or ask_std == 0:
+            return None
+        
+        # 6. 计算Z-score
+        bid_zscore = (bid_depth - bid_mean) / bid_std
+        ask_zscore = (ask_depth - ask_mean) / ask_std
+        
+        # 7. 使用配置的阈值判断
+        threshold = self.config['sweep_threshold']
+        
+        # 8. 检测扫单
         sweep = None
         
-        # 买方扫单
-        if bid_std > 0 and bid_depth > bid_mean + self.config['sweep_threshold'] * bid_std:
-            # 计算频率
+        if bid_zscore > threshold:
+            # 买方扫单
             frequency = self._calculate_order_frequency(symbol, 'buy', timestamp)
-            
             sweep = SweepOrder(
                 timestamp=timestamp,
                 symbol=symbol,
@@ -351,13 +372,11 @@ class OrderFlowAnalyzer:
                 volume=bid_depth,
                 price=spot_price,
                 frequency=frequency,
-                anomaly_score=min((bid_depth - bid_mean) / (bid_std * 3), 1.0)
+                anomaly_score=min(bid_zscore / (threshold * 2), 1.0)  # 归一化到0-1
             )
-            
-        # 卖方扫单
-        elif ask_std > 0 and ask_depth > ask_mean + self.config['sweep_threshold'] * ask_std:
+        elif ask_zscore > threshold:
+            # 卖方扫单
             frequency = self._calculate_order_frequency(symbol, 'sell', timestamp)
-            
             sweep = SweepOrder(
                 timestamp=timestamp,
                 symbol=symbol,
@@ -365,10 +384,34 @@ class OrderFlowAnalyzer:
                 volume=ask_depth,
                 price=spot_price,
                 frequency=frequency,
-                anomaly_score=min((ask_depth - ask_mean) / (ask_std * 3), 1.0)
+                anomaly_score=min(ask_zscore / (threshold * 2), 1.0)
             )
-            
+        
         return sweep
+
+    def get_adaptive_threshold(self, symbol: str) -> float:
+        """获取自适应阈值（用于高级场景）"""
+        if len(self.volume_history[symbol]) < 100:
+            return self.config['sweep_threshold']
+        
+        # 基于最近100个样本的分布
+        recent = list(self.volume_history[symbol])[-100:]
+        all_depths = []
+        for h in recent:
+            all_depths.extend([h['bid_depth'], h['ask_depth']])
+        
+        # 使用95分位数作为动态阈值参考
+        if all_depths:
+            mean = np.mean(all_depths)
+            std = np.std(all_depths)
+            if std > 0:
+                p95 = np.percentile(all_depths, 95)
+                # 计算95分位数对应的z-score
+                adaptive_z = (p95 - mean) / std
+                # 在原阈值基础上调整
+                return max(self.config['sweep_threshold'], adaptive_z * 0.8)
+        
+        return self.config['sweep_threshold']
     
     def _calculate_order_frequency(self, symbol: str, side: str, 
                                   timestamp: datetime) -> float:
@@ -393,6 +436,10 @@ class DivergenceDetector:
     def __init__(self, config: Dict):
         self.config = config
         self.price_volume_history = defaultdict(lambda: deque(maxlen=100))
+        # 背离状态追踪：记录每种背离类型的连续检测次数
+        self.divergence_duration_tracker = defaultdict(int)
+        # RSI计算缓存
+        self.rsi_cache = defaultdict(lambda: deque(maxlen=100))
         
     def detect_divergences(self, spot_data: pd.DataFrame) -> List[Divergence]:
         """检测价格量背离"""
@@ -416,16 +463,21 @@ class DivergenceDetector:
                     'volume': row['volume']
                 })
                 
-            # 检测不同类型的背离
-            # 1. 价格-成交量背离
+            # 1. 检测价格-成交量背离
             pv_div = self._detect_price_volume_divergence(symbol)
             if pv_div:
                 divergences.append(pv_div)
+            else:
+                # 重置价量背离计数
+                self._reset_divergence_duration(symbol, ['pv_bullish', 'pv_bearish'])
                 
-            # 2. 动量背离
+            # 2. 检测动量背离
             momentum_div = self._detect_momentum_divergence(symbol)
             if momentum_div:
                 divergences.append(momentum_div)
+            else:
+                # 重置动量背离计数
+                self._reset_divergence_duration(symbol, ['momentum_bullish', 'momentum_bearish'])
                 
         return divergences
     
@@ -435,39 +487,37 @@ class DivergenceDetector:
         if len(history) < self.config['lookback_period']:
             return None
             
-        # 提取价格和成交量序列
         prices = [h['price'] for h in history]
         volumes = [h['volume'] for h in history]
         
-        # 计算趋势
         price_trend = self._calculate_trend(prices[-self.config['lookback_period']:])
         volume_trend = self._calculate_trend(volumes[-self.config['lookback_period']:])
         
-        # 检测背离
-        if abs(price_trend['slope']) > 0.001:  # 价格有明显趋势
-            # 价格上涨但成交量下降
+        # 检测背离条件
+        divergence_type = None
+        
+        if abs(price_trend['slope']) > 0.001:
             if price_trend['slope'] > 0 and volume_trend['slope'] < 0:
-                strength = abs(volume_trend['slope']) / (abs(price_trend['slope']) + 1e-6)
-                return Divergence(
-                    symbol=symbol,
-                    divergence_type='price_volume',
-                    strength=min(strength, 1.0),
-                    duration=self._count_divergence_duration(symbol, 'pv_up'),
-                    details={
-                        'price_trend': price_trend['slope'],
-                        'volume_trend': volume_trend['slope'],
-                        'correlation': price_trend['correlation']
-                    }
-                )
-            # 价格下跌但成交量上升
+                divergence_type = 'pv_bullish'  # 价涨量缩，可能见顶
             elif price_trend['slope'] < 0 and volume_trend['slope'] > 0:
+                divergence_type = 'pv_bearish'  # 价跌量增，可能见底
+        
+        if divergence_type:
+            # 更新持续时间
+            duration_key = f"{symbol}_{divergence_type}"
+            self.divergence_duration_tracker[duration_key] += 1
+            duration = self.divergence_duration_tracker[duration_key]
+            
+            # 达到最小持续时间才生成信号
+            if duration >= self.config.get('min_duration', 3):
                 strength = abs(volume_trend['slope']) / (abs(price_trend['slope']) + 1e-6)
                 return Divergence(
                     symbol=symbol,
                     divergence_type='price_volume',
                     strength=min(strength, 1.0),
-                    duration=self._count_divergence_duration(symbol, 'pv_down'),
+                    duration=duration,
                     details={
+                        'type': divergence_type.split('_')[1],  # bullish/bearish
                         'price_trend': price_trend['slope'],
                         'volume_trend': volume_trend['slope'],
                         'correlation': price_trend['correlation']
@@ -477,7 +527,7 @@ class DivergenceDetector:
         return None
     
     def _detect_momentum_divergence(self, symbol: str) -> Optional[Divergence]:
-        """检测动量背离"""
+        """检测动量背离（RSI背离）"""
         history = list(self.price_volume_history[symbol])
         if len(history) < self.config['lookback_period'] * 2:
             return None
@@ -489,44 +539,76 @@ class DivergenceDetector:
         if len(rsi_values) < self.config['lookback_period']:
             return None
             
-        # 寻找价格新高/新低但RSI未创新高/新低
-        recent_prices = prices[-self.config['lookback_period']:]
-        recent_rsi = rsi_values[-self.config['lookback_period']:]
+        # 寻找价格和RSI的高低点
+        lookback = self.config['lookback_period']
+        recent_prices = prices[-lookback:]
+        recent_rsi = rsi_values[-lookback:]
         
-        price_high_idx = np.argmax(recent_prices)
-        price_low_idx = np.argmin(recent_prices)
-        rsi_high_idx = np.argmax(recent_rsi)
-        rsi_low_idx = np.argmin(recent_rsi)
+        # 找出局部高低点
+        price_peaks, price_troughs = self._find_peaks_and_troughs(recent_prices)
+        rsi_peaks, rsi_troughs = self._find_peaks_and_troughs(recent_rsi)
+        
+        divergence_type = None
+        strength = 0.0
         
         # 看涨背离：价格新低但RSI未创新低
-        if price_low_idx > len(recent_prices) * 0.7 and rsi_low_idx < len(recent_rsi) * 0.3:
-            return Divergence(
-                symbol=symbol,
-                divergence_type='momentum',
-                strength=0.7,
-                duration=self._count_divergence_duration(symbol, 'momentum_bull'),
-                details={
-                    'type': 'bullish',
-                    'price_low_position': price_low_idx / len(recent_prices),
-                    'rsi_low_position': rsi_low_idx / len(recent_rsi)
-                }
-            )
-            
+        if len(price_troughs) >= 2 and len(rsi_troughs) >= 2:
+            # 比较最近两个低点
+            if (price_troughs[-1]['value'] < price_troughs[-2]['value'] and 
+                rsi_troughs[-1]['value'] > rsi_troughs[-2]['value']):
+                divergence_type = 'momentum_bullish'
+                strength = 0.7 + 0.3 * (rsi_troughs[-1]['value'] - rsi_troughs[-2]['value']) / 50
+                
         # 看跌背离：价格新高但RSI未创新高
-        elif price_high_idx > len(recent_prices) * 0.7 and rsi_high_idx < len(recent_rsi) * 0.3:
-            return Divergence(
-                symbol=symbol,
-                divergence_type='momentum',
-                strength=0.7,
-                duration=self._count_divergence_duration(symbol, 'momentum_bear'),
-                details={
-                    'type': 'bearish',
-                    'price_high_position': price_high_idx / len(recent_prices),
-                    'rsi_high_position': rsi_high_idx / len(recent_rsi)
-                }
-            )
+        elif len(price_peaks) >= 2 and len(rsi_peaks) >= 2:
+            if (price_peaks[-1]['value'] > price_peaks[-2]['value'] and 
+                rsi_peaks[-1]['value'] < rsi_peaks[-2]['value']):
+                divergence_type = 'momentum_bearish'
+                strength = 0.7 + 0.3 * (rsi_peaks[-2]['value'] - rsi_peaks[-1]['value']) / 50
+                
+        if divergence_type:
+            # 更新持续时间
+            duration_key = f"{symbol}_{divergence_type}"
+            self.divergence_duration_tracker[duration_key] += 1
+            duration = self.divergence_duration_tracker[duration_key]
             
+            # 达到最小持续时间才生成信号
+            if duration >= self.config.get('min_duration', 3):
+                return Divergence(
+                    symbol=symbol,
+                    divergence_type='momentum',
+                    strength=min(strength, 1.0),
+                    duration=duration,
+                    details={
+                        'type': divergence_type.split('_')[1],  # bullish/bearish
+                        'latest_rsi': recent_rsi[-1],
+                        'price_change': (recent_prices[-1] - recent_prices[0]) / recent_prices[0]
+                    }
+                )
+                
         return None
+    
+    def _find_peaks_and_troughs(self, data: List[float], min_distance: int = 3) -> Tuple[List[Dict], List[Dict]]:
+        """找出局部高点和低点"""
+        peaks = []
+        troughs = []
+        
+        for i in range(min_distance, len(data) - min_distance):
+            # 检查是否为局部高点
+            if all(data[i] >= data[j] for j in range(i - min_distance, i + min_distance + 1) if j != i):
+                peaks.append({'index': i, 'value': data[i]})
+            # 检查是否为局部低点
+            elif all(data[i] <= data[j] for j in range(i - min_distance, i + min_distance + 1) if j != i):
+                troughs.append({'index': i, 'value': data[i]})
+                
+        return peaks, troughs
+    
+    def _reset_divergence_duration(self, symbol: str, divergence_types: List[str]):
+        """重置指定背离类型的持续时间"""
+        for div_type in divergence_types:
+            key = f"{symbol}_{div_type}"
+            if key in self.divergence_duration_tracker:
+                self.divergence_duration_tracker[key] = 0
     
     def _calculate_trend(self, data: List[float]) -> Dict[str, float]:
         """计算趋势"""
@@ -564,11 +646,6 @@ class DivergenceDetector:
             rsi.append(100 - 100 / (1 + rs))
             
         return rsi
-    
-    def _count_divergence_duration(self, symbol: str, div_type: str) -> int:
-        """统计背离持续时间"""
-        # 简化实现，实际需要维护背离状态历史
-        return 1
 
 
 class CrossMarketAnalyzer:

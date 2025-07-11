@@ -62,13 +62,25 @@ class AdaptiveLearner:
                     'gamma_pressure.high': (50, 70),
                     'gamma_pressure.medium': (30, 50),
                     'signal_generation.min_strength': (40, 60),
-                    'signal_generation.min_confidence': (0.4, 0.7)
+                    'signal_generation.min_confidence': (0.4, 0.7),
+                    # 新增市场行为检测参数
+                    'market_behavior.order_flow.sweep_threshold': (1.5, 4.0),
+                    'market_behavior.order_flow.volume_multiplier': (1.5, 4.0),
+                    'market_behavior.order_flow.frequency_window': (30, 120),
+                    'market_behavior.divergence.min_duration': (2, 10),
+                    'market_behavior.divergence.lookback_period': (10, 50)
                 },
                 'weights': {
                     'gamma_pressure.wall_proximity_weight': (0.1, 0.5),
                     'gamma_pressure.hedge_flow_weight': (0.1, 0.5),
                     'market_momentum.sweep_weight': (0.2, 0.6),
                     'market_momentum.divergence_weight': (0.1, 0.5)
+                },
+                # 新增市场状态阈值
+                'regime_thresholds': {
+                    'market_regime.anomaly_threshold': (0.5, 0.85),
+                    'market_regime.volatility_percentile': (0.2, 0.4),
+                    'market_regime.volume_percentile': (0.6, 0.8)
                 }
             },
             'failure_thresholds': {
