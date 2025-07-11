@@ -372,6 +372,43 @@ class GammaPressureAnalyzer:
             
         return features
 
+    def update_parameters(self, updates: Dict[str, Any]) -> bool:
+        """动态更新参数"""
+        try:
+            # 深度更新配置
+            def update_nested(target, source):
+                for key, value in source.items():
+                    if isinstance(value, dict) and key in target:
+                        update_nested(target[key], value)
+                    else:
+                        target[key] = value
+            
+            update_nested(self.config, updates)
+            logger.info(f"GammaPressureAnalyzer parameters updated: {updates}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to update parameters: {e}")
+            return False
+
+    def get_adaptive_features(self) -> Dict[str, float]:
+        """获取自适应特征供学习模块使用"""
+        features = {}
+        
+        # 从历史数据提取特征
+        for symbol, history in self.gamma_history.items():
+            if len(history) > 10:
+                values = [h['value'] for h in history]
+                features[f'{symbol}_gamma_volatility'] = np.std(values)
+                features[f'{symbol}_gamma_trend'] = self._calculate_gamma_change_rate(symbol)
+        
+        # 墙体统计
+        features['avg_wall_distance'] = np.mean([
+            indicators.get('nearest_wall_distance', 10) 
+            for indicators in self.pressure_indicators.values()
+            if indicators
+        ])
+        
+        return features
 
 class DealerPositionTracker:
     """做市商头寸追踪器"""
@@ -471,3 +508,4 @@ class FlowEstimator:
                 total_volume += volume
                 
         return total_imbalance / total_volume if total_volume > 0 else 0.0
+    

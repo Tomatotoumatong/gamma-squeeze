@@ -148,8 +148,8 @@ class MarketBehaviorDetector:
                 
                 # 基于特征判断状态
                 high_anomaly = any(score > 0.7 for score in anomaly_scores.values())
-                low_volatility = volatility.mean() < volatility.quantile(0.3)
-                high_volume = volume_mean.mean() > volume_mean.quantile(0.7)
+                low_volatility = volatility.mean() < np.quantile(volatility, 0.3)
+                high_volume = volume_mean.mean() > np.quantile(volume_mean, 0.7)
                 
                 if high_anomaly and low_volatility:
                     regime['state'] = 'squeeze'
@@ -206,6 +206,60 @@ class MarketBehaviorDetector:
                 
             metrics['feature_matrix'] = np.array(features)
             
+        return metrics
+
+    def update_parameters(self, updates: Dict[str, Any]) -> bool:
+        """动态更新参数"""
+        try:
+            # 深度更新配置
+            def update_nested(target, source):
+                for key, value in source.items():
+                    if isinstance(value, dict) and key in target and isinstance(target[key], dict):
+                        update_nested(target[key], value)
+                    else:
+                        target[key] = value
+            
+            # 更新主配置
+            update_nested(self.config, updates)
+            
+            # 同步更新子模块配置
+            if 'order_flow' in updates:
+                update_nested(self.order_flow_analyzer.config, updates['order_flow'])
+            
+            if 'divergence' in updates:
+                update_nested(self.divergence_detector.config, updates['divergence'])
+                
+            if 'cross_market' in updates:
+                update_nested(self.cross_market_analyzer.config, updates['cross_market'])
+            
+            logger.info(f"MarketBehaviorDetector parameters updated: {updates}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to update parameters: {e}")
+            return False
+
+    def get_current_config(self) -> Dict[str, Any]:
+        """获取当前配置"""
+        return copy.deepcopy(self.config)
+
+    def get_performance_metrics(self) -> Dict[str, float]:
+        """获取性能指标供学习模块使用"""
+        metrics = {}
+        
+        # 扫单检测准确性（基于历史）
+        if hasattr(self, 'sweep_detection_history'):
+            metrics['sweep_detection_rate'] = len(self.sweep_detection_history) / max(self.total_checks, 1)
+        
+        # 背离检测统计
+        if hasattr(self, 'divergence_history'):
+            metrics['divergence_detection_rate'] = len(self.divergence_history) / max(self.total_checks, 1)
+        
+        # 跨市场信号质量
+        if hasattr(self, 'cross_market_history'):
+            valid_signals = sum(1 for s in self.cross_market_history if s.correlation > 0.8)
+            metrics['high_quality_cross_market_rate'] = valid_signals / max(len(self.cross_market_history), 1)
+        
         return metrics
 
 
@@ -599,7 +653,7 @@ class CrossMarketAnalyzer:
             left_index=True, right_index=True, 
             how='outer', 
             suffixes=('_1', '_2')
-        ).fillna(method='ffill').dropna()
+        ).ffill().dropna()
         
         return merged
     

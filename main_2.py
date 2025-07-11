@@ -456,8 +456,10 @@ async def main():
         },
         'gamma_analysis': {
             'interval': 60,
-            'wall_percentile': 85,
-            'history_window': 100
+            'wall_percentile': 90,  # Gamma墙识别阈值百分位
+            'history_window': 100,  # 历史窗口大小
+            'gamma_decay_factor': 0.95,  # 历史gamma衰减因子
+            'hedge_flow_threshold': 0.7,  # 对冲流触发阈值
         },
         'market_behavior': {
             'interval': 30,
@@ -473,6 +475,9 @@ async def main():
                 'correlation_threshold': 0.7,  # 相关性阈值
                 'max_lag': 300,  # 最大延迟（秒）
                 'min_observations': 100  # 最小观测数
+            },
+            'learning_params': {
+                'enable_ml': False
             }
         },
         'signal_generation': {
