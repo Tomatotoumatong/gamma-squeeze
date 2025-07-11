@@ -12,7 +12,7 @@ import logging
 from collections import defaultdict, deque
 from scipy import stats
 from sklearn.preprocessing import StandardScaler
-
+import copy
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -693,7 +693,7 @@ class CrossMarketAnalyzer:
     def _calculate_signal_strength(self, prices1: np.ndarray, prices2: np.ndarray,
                                 lag: int, correlation: float) -> float:
         """计算信号强度"""
-        strength = correlation
+        strength = abs(correlation)
         
         if len(prices1) > 100:
             window = 50
@@ -719,6 +719,11 @@ class CrossMarketAnalyzer:
                     
                     # 确保切片长度相同且非空
                     if len(slice1) == len(slice2) == window:
+                        if np.std(slice1) == 0 or np.std(slice2) == 0:
+                            continue  
+                        if np.any(np.isnan(slice1)) or np.any(np.isnan(slice2)):
+                            continue  
+                        
                         corr = np.corrcoef(slice1, slice2)[0, 1]
                         rolling_corrs.append(corr)
                 except:

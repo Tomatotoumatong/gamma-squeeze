@@ -302,7 +302,7 @@ class GammaSqueezeSystem:
         sweeps = result.get('sweep_orders', [])
         if sweeps:
             print(f"\n{Fore.GREEN}Sweep Orders Detected:{Style.RESET_ALL}")
-            for sweep in sweeps[:3]:  # 最多显示3个
+            for sweep in sweeps: 
                 print(f"  {sweep.symbol}: {sweep.side.upper()} sweep")
                 print(f"    Volume: {sweep.volume:.0f} | Anomaly: {sweep.anomaly_score:.2f}")
                 print(f"    Frequency: {sweep.frequency:.1f}/min")
@@ -311,7 +311,7 @@ class GammaSqueezeSystem:
         divergences = result.get('divergences', [])
         if divergences:
             print(f"\n{Fore.MAGENTA}Divergences Detected:{Style.RESET_ALL}")
-            for div in divergences[:3]:
+            for div in divergences:
                 print(f"  {div.symbol}: {div.divergence_type}")
                 print(f"    Strength: {div.strength:.2f} | Duration: {div.duration}")
         
@@ -319,7 +319,7 @@ class GammaSqueezeSystem:
         cross_signals = result.get('cross_market_signals', [])
         if cross_signals:
             print(f"\n{Fore.BLUE}Cross-Market Signals:{Style.RESET_ALL}")
-            for signal in cross_signals[:2]:
+            for signal in cross_signals:
                 print(f"  {signal.lead_market} → {signal.lag_market}")
                 print(f"    Correlation: {signal.correlation:.2f} | Lag: {signal.lag_time:.0f}s")
         
@@ -486,7 +486,7 @@ async def main():
             'min_confidence': 0.6,
             'signal_cooldown': 300  # 5分钟冷却期
         },
-        'display_interval': 10,
+        'display_interval': 30,
         'debug_mode': True,
         'phase3_debug': True
     }

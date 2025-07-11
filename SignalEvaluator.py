@@ -978,8 +978,10 @@ class TechnicalConfirmationScorer:
         
     def calculate(self, asset: str, market_data: pd.DataFrame) -> float:
         """计算技术面确认分数"""
-        asset_data = market_data[market_data['symbol'] == asset]
-        
+        asset_data = market_data[
+            (market_data['symbol'] == asset) & 
+            (market_data['data_type'] == 'spot')
+        ]
         if asset_data.empty or len(asset_data) < 20:
             return 0
             
@@ -1035,7 +1037,7 @@ class TechnicalConfirmationScorer:
     def _calculate_trend_alignment_score(self, data: pd.DataFrame) -> float:
         """计算趋势一致性分数"""
         prices = data['price'].values
-        
+        # print(prices)
         # 计算不同周期的趋势
         trends = []
         for period in [5, 10, 20]:
@@ -1061,7 +1063,8 @@ class TechnicalConfirmationScorer:
             
         volumes = data['volume'].values
         prices = data['price'].values
-        
+        # print(volumes)
+        # print(prices)
         if len(volumes) < 5:
             return 50
             

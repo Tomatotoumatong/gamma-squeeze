@@ -1,0 +1,264 @@
+[
+  {
+    "timestamp": "2025-07-11T06:03:35.139021",
+    "asset": "ETHUSDT",
+    "signal_type": "GAMMA_SQUEEZE",
+    "direction": "BEARISH",
+    "strength": 76.0,
+    "confidence": 0.57,
+    "expected_move": "2-5%",
+    "time_horizon": "4-8h",
+    "key_levels": [
+      116000.0,
+      120000.0,
+      NaN,
+      NaN,
+      2900.0
+    ],
+    "risk_factors": [
+      "\u975e\u4e3b\u8981\u4ea4\u6613\u65f6\u6bb5",
+      "\u5b58\u5728\u80cc\u79bb\u4fe1\u53f7"
+    ],
+    "metadata": {
+      "scores": {
+        "gamma_pressure": 80.68914656726062,
+        "market_momentum": 65.5331431240436,
+        "technical": 80.0
+      },
+      "gamma_metrics": {
+        "total_gamma_exposure": 8673.855180500894,
+        "net_gamma_exposure": -8673.855180500894,
+        "gamma_concentration": 0.9500914042016231,
+        "dealer_net_delta": -39180.059031028075,
+        "dealer_position_score": 5.54113929751616e-05
+      },
+      "market_metrics": {
+        "sweep_count": 22,
+        "sweep_intensity": 0.8609611859059029,
+        "anomaly_score": 0.6230691320536528
+      },
+      "config_used": {
+        "gamma_pressure": {
+          "wall_proximity_weight": 0.3,
+          "hedge_flow_weight": 0.3,
+          "concentration_weight": 0.2,
+          "dealer_position_weight": 0.2,
+          "thresholds": {
+            "critical": 80,
+            "high": 60,
+            "medium": 40,
+            "low": 20
+          }
+        },
+        "market_momentum": {
+          "sweep_weight": 0.4,
+          "divergence_weight": 0.3,
+          "cross_market_weight": 0.3,
+          "lookback_periods": [
+            5,
+            10,
+            30
+          ],
+          "momentum_decay": 0.95
+        },
+        "technical": {
+          "support_resistance_weight": 0.4,
+          "trend_alignment_weight": 0.3,
+          "volume_profile_weight": 0.3,
+          "key_level_tolerance": 0.005
+        },
+        "signal_generation": {
+          "min_strength": 50,
+          "min_confidence": 0.5,
+          "signal_cooldown": 300,
+          "risk_assessment": {
+            "low_liquidity_threshold": 0.3,
+            "weekend_penalty": 0.2,
+            "news_event_boost": 0.1
+          }
+        },
+        "adaptive_learning": {
+          "enabled": true,
+          "learning_rate": 0.1,
+          "parameter_bounds": {
+            "signal_generation.min_strength": [
+              40,
+              70
+            ],
+            "signal_generation.min_confidence": [
+              0.3,
+              0.8
+            ],
+            "gamma_pressure.thresholds.high": [
+              50,
+              80
+            ],
+            "gamma_pressure.thresholds.critical": [
+              70,
+              95
+            ],
+            "gamma_pressure.wall_proximity_weight": [
+              0.1,
+              0.5
+            ],
+            "gamma_pressure.hedge_flow_weight": [
+              0.1,
+              0.5
+            ],
+            "market_momentum.sweep_weight": [
+              0.2,
+              0.6
+            ],
+            "market_momentum.divergence_weight": [
+              0.1,
+              0.5
+            ]
+          }
+        },
+        "manual_scoring": {
+          "enabled": true,
+          "weight": 0.2
+        },
+        "interval": 60,
+        "min_strength": 60,
+        "min_confidence": 0.6,
+        "signal_cooldown": 300
+      },
+      "adaptive_features": {
+        "parameter_version": 0,
+        "learning_enabled": true
+      }
+    }
+  },
+  {
+    "timestamp": "2025-07-11T06:08:37.797891",
+    "asset": "ETHUSDT",
+    "signal_type": "TECHNICAL_SETUP",
+    "direction": "BEARISH",
+    "strength": 74.8,
+    "confidence": 0.6,
+    "expected_move": "2-5%",
+    "time_horizon": "4-8h",
+    "key_levels": [
+      2900.0,
+      2950.0,
+      3000.0,
+      3050.0,
+      3100.0
+    ],
+    "risk_factors": [
+      "\u975e\u4e3b\u8981\u4ea4\u6613\u65f6\u6bb5",
+      "\u5b58\u5728\u80cc\u79bb\u4fe1\u53f7"
+    ],
+    "metadata": {
+      "scores": {
+        "gamma_pressure": 75.0391631734978,
+        "market_momentum": 70.82102140158614,
+        "technical": 80.0
+      },
+      "gamma_metrics": {
+        "total_gamma_exposure": 3793.1513040024574,
+        "net_gamma_exposure": -3793.1513040024574,
+        "gamma_concentration": 0.9476228097686312,
+        "dealer_net_delta": -20139.82848118775,
+        "dealer_position_score": 5.665640339046663e-05
+      },
+      "market_metrics": {
+        "sweep_count": 15,
+        "sweep_intensity": 0.9243140655552864,
+        "anomaly_score": 0.6408079383554802
+      },
+      "config_used": {
+        "gamma_pressure": {
+          "wall_proximity_weight": 0.3,
+          "hedge_flow_weight": 0.3,
+          "concentration_weight": 0.2,
+          "dealer_position_weight": 0.2,
+          "thresholds": {
+            "critical": 80,
+            "high": 60,
+            "medium": 40,
+            "low": 20
+          }
+        },
+        "market_momentum": {
+          "sweep_weight": 0.4,
+          "divergence_weight": 0.3,
+          "cross_market_weight": 0.3,
+          "lookback_periods": [
+            5,
+            10,
+            30
+          ],
+          "momentum_decay": 0.95
+        },
+        "technical": {
+          "support_resistance_weight": 0.4,
+          "trend_alignment_weight": 0.3,
+          "volume_profile_weight": 0.3,
+          "key_level_tolerance": 0.005
+        },
+        "signal_generation": {
+          "min_strength": 50,
+          "min_confidence": 0.5,
+          "signal_cooldown": 300,
+          "risk_assessment": {
+            "low_liquidity_threshold": 0.3,
+            "weekend_penalty": 0.2,
+            "news_event_boost": 0.1
+          }
+        },
+        "adaptive_learning": {
+          "enabled": true,
+          "learning_rate": 0.1,
+          "parameter_bounds": {
+            "signal_generation.min_strength": [
+              40,
+              70
+            ],
+            "signal_generation.min_confidence": [
+              0.3,
+              0.8
+            ],
+            "gamma_pressure.thresholds.high": [
+              50,
+              80
+            ],
+            "gamma_pressure.thresholds.critical": [
+              70,
+              95
+            ],
+            "gamma_pressure.wall_proximity_weight": [
+              0.1,
+              0.5
+            ],
+            "gamma_pressure.hedge_flow_weight": [
+              0.1,
+              0.5
+            ],
+            "market_momentum.sweep_weight": [
+              0.2,
+              0.6
+            ],
+            "market_momentum.divergence_weight": [
+              0.1,
+              0.5
+            ]
+          }
+        },
+        "manual_scoring": {
+          "enabled": true,
+          "weight": 0.2
+        },
+        "interval": 60,
+        "min_strength": 60,
+        "min_confidence": 0.6,
+        "signal_cooldown": 300
+      },
+      "adaptive_features": {
+        "parameter_version": 0,
+        "learning_enabled": true
+      }
+    }
+  }
+]
