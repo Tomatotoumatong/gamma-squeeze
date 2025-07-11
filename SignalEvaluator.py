@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 import logging
 from collections import defaultdict
-
+import copy
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -29,20 +29,34 @@ class TradingSignal:
     metadata: Dict[str, Any]
 
 class SignalEvaluator:
-    """信号评估器"""
+    """支持自主学习的信号评估器"""
     
     def __init__(self, config: Optional[Dict] = None):
-        self.config = config or self._default_config()
-        self.score_calculators = {
-            'gamma_pressure': GammaPressureScorer(self.config['gamma_pressure']),
-            'market_momentum': MarketMomentumScorer(self.config['market_momentum']),
-            'technical': TechnicalConfirmationScorer(self.config['technical'])
-        }
+        # 基础配置
+        self.base_config = self._default_config()
+        
+        # 当前运行配置（可被动态调整）
+        self.config = copy.deepcopy(self.base_config)
+        if config:
+            self._update_config(config)
+            
+        # 参数历史追踪
+        self.parameter_history = defaultdict(list)
+        self.performance_history = []
+        
+        # 学习状态
+        self.learning_enabled = True
+        self.last_update = datetime.utcnow()
+        
+        # 初始化评分器
+        self._init_scorers()
+        
+        # 信号历史
         self.signal_history = defaultdict(list)
         self.manual_overrides = {}
         
     def _default_config(self) -> Dict:
-        """默认配置"""
+        """默认配置 - 作为基线"""
         return {
             'gamma_pressure': {
                 'wall_proximity_weight': 0.3,
@@ -60,30 +74,214 @@ class SignalEvaluator:
                 'sweep_weight': 0.4,
                 'divergence_weight': 0.3,
                 'cross_market_weight': 0.3,
-                'lookback_periods': [5, 10, 30],  # 分钟
+                'lookback_periods': [5, 10, 30],
                 'momentum_decay': 0.95
             },
             'technical': {
                 'support_resistance_weight': 0.4,
                 'trend_alignment_weight': 0.3,
                 'volume_profile_weight': 0.3,
-                'key_level_tolerance': 0.005  # 0.5%
+                'key_level_tolerance': 0.005
             },
             'signal_generation': {
                 'min_strength': 50,
                 'min_confidence': 0.5,
-                'signal_cooldown': 300,  # 秒
+                'signal_cooldown': 300,
                 'risk_assessment': {
                     'low_liquidity_threshold': 0.3,
                     'weekend_penalty': 0.2,
                     'news_event_boost': 0.1
                 }
             },
+            'adaptive_learning': {
+                'enabled': True,
+                'learning_rate': 0.1,
+                'parameter_bounds': {
+                    # 阈值边界
+                    'signal_generation.min_strength': (40, 70),
+                    'signal_generation.min_confidence': (0.3, 0.8),
+                    'gamma_pressure.thresholds.high': (50, 80),
+                    'gamma_pressure.thresholds.critical': (70, 95),
+                    # 权重边界
+                    'gamma_pressure.wall_proximity_weight': (0.1, 0.5),
+                    'gamma_pressure.hedge_flow_weight': (0.1, 0.5),
+                    'market_momentum.sweep_weight': (0.2, 0.6),
+                    'market_momentum.divergence_weight': (0.1, 0.5),
+                }
+            },
             'manual_scoring': {
                 'enabled': True,
-                'weight': 0.2  # 手动评分权重
+                'weight': 0.2
             }
         }
+    
+    def _init_scorers(self):
+        """初始化评分器"""
+        from SignalEvaluator import GammaPressureScorer, MarketMomentumScorer, TechnicalConfirmationScorer
+        
+        self.score_calculators = {
+            'gamma_pressure': GammaPressureScorer(self.config['gamma_pressure']),
+            'market_momentum': MarketMomentumScorer(self.config['market_momentum']),
+            'technical': TechnicalConfirmationScorer(self.config['technical'])
+        }
+    
+    def update_parameters(self, parameter_updates: Dict[str, Any], 
+                         reason: str = "Manual update") -> bool:
+        """
+        动态更新参数
+        
+        Args:
+            parameter_updates: 嵌套字典形式的参数更新
+            reason: 更新原因
+            
+        Returns:
+            bool: 更新是否成功
+        """
+        try:
+            # 验证参数边界
+            if not self._validate_parameters(parameter_updates):
+                logger.error("Parameter updates violate bounds")
+                return False
+            
+            # 记录原始配置
+            old_config = copy.deepcopy(self.config)
+            
+            # 应用更新
+            self._update_config(parameter_updates)
+            
+            # 重新初始化评分器
+            self._init_scorers()
+            
+            # 记录参数变化
+            self._log_parameter_change(old_config, parameter_updates, reason)
+            
+            logger.info(f"Parameters updated successfully: {reason}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to update parameters: {e}")
+            return False
+    
+    def _validate_parameters(self, updates: Dict[str, Any]) -> bool:
+        """验证参数是否在允许范围内"""
+        bounds = self.config['adaptive_learning']['parameter_bounds']
+        
+        for param_path, new_value in self._flatten_dict(updates).items():
+            if param_path in bounds:
+                min_val, max_val = bounds[param_path]
+                if not (min_val <= new_value <= max_val):
+                    logger.warning(f"Parameter {param_path}={new_value} outside bounds [{min_val}, {max_val}]")
+                    return False
+        return True
+    
+    def _update_config(self, updates: Dict[str, Any]):
+        """递归更新配置"""
+        def update_nested(target, source):
+            for key, value in source.items():
+                if isinstance(value, dict) and key in target and isinstance(target[key], dict):
+                    update_nested(target[key], value)
+                else:
+                    target[key] = value
+        
+        update_nested(self.config, updates)
+    
+    def _flatten_dict(self, d: Dict, parent_key: str = '', sep: str = '.') -> Dict[str, Any]:
+        """扁平化嵌套字典"""
+        items = []
+        for k, v in d.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, dict):
+                items.extend(self._flatten_dict(v, new_key, sep=sep).items())
+            else:
+                items.append((new_key, v))
+        return dict(items)
+    
+    def _log_parameter_change(self, old_config: Dict, updates: Dict, reason: str):
+        """记录参数变化"""
+        timestamp = datetime.utcnow()
+        
+        change_record = {
+            'timestamp': timestamp,
+            'reason': reason,
+            'changes': {},
+            'config_snapshot': copy.deepcopy(self.config)
+        }
+        
+        # 记录具体变化
+        flat_updates = self._flatten_dict(updates)
+        flat_old = self._flatten_dict(old_config)
+        
+        for param_path, new_value in flat_updates.items():
+            old_value = flat_old.get(param_path, 'N/A')
+            change_record['changes'][param_path] = {
+                'old': old_value,
+                'new': new_value
+            }
+        
+        self.parameter_history[timestamp] = change_record
+    
+    def get_parameter_effectiveness(self) -> Dict[str, float]:
+        """分析参数调整的有效性"""
+        if len(self.performance_history) < 2:
+            return {}
+        
+        effectiveness = {}
+        
+        # 分析最近的参数变化对性能的影响
+        recent_changes = list(self.parameter_history.items())[-5:]  # 最近5次变化
+        
+        for timestamp, change_record in recent_changes:
+            # 找到变化前后的性能数据
+            before_perf = [p for p in self.performance_history if p['timestamp'] < timestamp]
+            after_perf = [p for p in self.performance_history if p['timestamp'] > timestamp]
+            
+            if before_perf and after_perf:
+                before_avg = np.mean([p['accuracy'] for p in before_perf[-10:]])
+                after_avg = np.mean([p['accuracy'] for p in after_perf[:10]])
+                
+                improvement = after_avg - before_avg
+                
+                for param_path in change_record['changes']:
+                    effectiveness[param_path] = effectiveness.get(param_path, 0) + improvement
+        
+        return effectiveness
+    
+    def suggest_parameter_adjustments(self) -> Dict[str, Any]:
+        """基于历史表现建议参数调整"""
+        if not self.learning_enabled:
+            return {}
+        
+        suggestions = {}
+        effectiveness = self.get_parameter_effectiveness()
+        
+        # 基于表现建议调整
+        for param_path, effect in effectiveness.items():
+            if param_path in self.config['adaptive_learning']['parameter_bounds']:
+                bounds = self.config['adaptive_learning']['parameter_bounds'][param_path]
+                current_value = self._get_nested_value(param_path)
+                
+                if effect < -0.05:  # 负面影响，尝试反向调整
+                    if current_value > bounds[0]:
+                        suggestions[param_path] = max(
+                            current_value * 0.9,
+                            bounds[0]
+                        )
+                elif effect > 0.05:  # 正面影响，继续同方向
+                    if current_value < bounds[1]:
+                        suggestions[param_path] = min(
+                            current_value * 1.1,
+                            bounds[1]
+                        )
+        
+        return suggestions
+    
+    def _get_nested_value(self, path: str) -> Any:
+        """获取嵌套配置值"""
+        keys = path.split('.')
+        value = self.config
+        for key in keys:
+            value = value[key]
+        return value
     
     def evaluate(self, gamma_analysis: Dict[str, Any], 
                 market_behavior: Dict[str, Any],
@@ -192,11 +390,14 @@ class SignalEvaluator:
         
         if not direction:
             return None
-            
+        
         # 计算信号强度和置信度
         strength = self._calculate_signal_strength(scores)
         confidence = self._calculate_confidence(scores, market_behavior)
+        min_confidence = self.config['signal_generation']['min_confidence']
         
+        if confidence < min_confidence:
+            return None
         # 识别关键价位
         key_levels = self._identify_key_levels(
             asset, gamma_analysis, market_data
@@ -232,7 +433,12 @@ class SignalEvaluator:
             metadata={
                 'scores': scores,
                 'gamma_metrics': self._extract_gamma_metrics(asset, gamma_analysis),
-                'market_metrics': self._extract_market_metrics(asset, market_behavior)
+                'market_metrics': self._extract_market_metrics(asset, market_behavior),
+                'config_used': copy.deepcopy(self.config),
+                'adaptive_features': {
+                    'parameter_version': len(self.parameter_history),
+                    'learning_enabled': self.learning_enabled
+                }
             }
         )
         
@@ -541,6 +747,56 @@ class SignalEvaluator:
             for signals in self.signal_history.values():
                 all_signals.extend(signals)
             return sorted(all_signals, key=lambda s: s.timestamp, reverse=True)
+        
+    def record_performance(self, accuracy: float, metadata: Dict[str, Any] = None):
+        """记录性能表现"""
+        performance_record = {
+            'timestamp': datetime.utcnow(),
+            'accuracy': accuracy,
+            'config_snapshot': copy.deepcopy(self.config),
+            'metadata': metadata or {}
+        }
+        
+        self.performance_history.append(performance_record)
+        
+        # 保持历史长度
+        if len(self.performance_history) > 1000:
+            self.performance_history = self.performance_history[-1000:]
+    
+    def get_adaptation_report(self) -> Dict[str, Any]:
+        """生成自适应报告"""
+        return {
+            'parameter_changes': len(self.parameter_history),
+            'current_config': self.config,
+            'base_config': self.base_config,
+            'performance_trend': self._calculate_performance_trend(),
+            'parameter_effectiveness': self.get_parameter_effectiveness(),
+            'suggested_adjustments': self.suggest_parameter_adjustments(),
+            'learning_status': {
+                'enabled': self.learning_enabled,
+                'last_update': self.last_update,
+                'total_signals': sum(len(signals) for signals in self.signal_history.values())
+            }
+        }
+    
+    def _calculate_performance_trend(self) -> Dict[str, float]:
+        """计算性能趋势"""
+        if len(self.performance_history) < 10:
+            return {'trend': 0.0, 'confidence': 0.0}
+        
+        recent_accuracy = [p['accuracy'] for p in self.performance_history[-10:]]
+        older_accuracy = [p['accuracy'] for p in self.performance_history[-20:-10]] if len(self.performance_history) >= 20 else []
+        
+        if not older_accuracy:
+            return {'trend': 0.0, 'confidence': 0.0}
+        
+        recent_avg = np.mean(recent_accuracy)
+        older_avg = np.mean(older_accuracy)
+        
+        trend = recent_avg - older_avg
+        confidence = min(len(self.performance_history) / 100, 1.0)
+        
+        return {'trend': trend, 'confidence': confidence}
 
 
 class GammaPressureScorer:
