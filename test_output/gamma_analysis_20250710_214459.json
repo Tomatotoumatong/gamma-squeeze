@@ -1,0 +1,107 @@
+[
+  {
+    "timestamp": "2025-07-10T13:40:16.812822",
+    "gamma_walls_count": 10,
+    "hedge_flows_count": 1,
+    "pressure_indicators": {
+      "BTCUSDT": {
+        "nearest_wall_distance": 0.19302954385544208,
+        "gamma_change_rate": 0.0,
+        "hedge_pressure": -0.08174877483830933,
+        "gamma_concentration": 0.8728534706702951,
+        "adaptive_features": {}
+      },
+      "ETHUSDT": {
+        "nearest_wall_distance": 0.6112131197021987,
+        "gamma_change_rate": 0.0,
+        "hedge_pressure": 0.17150419769767677,
+        "gamma_concentration": 0.869670988488384,
+        "adaptive_features": {}
+      }
+    }
+  },
+  {
+    "timestamp": "2025-07-10T13:41:16.940979",
+    "gamma_walls_count": 10,
+    "hedge_flows_count": 1,
+    "pressure_indicators": {
+      "BTCUSDT": {
+        "nearest_wall_distance": 0.24162747610365823,
+        "gamma_change_rate": 0.0,
+        "hedge_pressure": -0.07952899151554746,
+        "gamma_concentration": 0.8717771268389336,
+        "adaptive_features": {}
+      },
+      "ETHUSDT": {
+        "nearest_wall_distance": 0.628569169562725,
+        "gamma_change_rate": 0.0,
+        "hedge_pressure": 0.1714280052134457,
+        "gamma_concentration": 0.8696328832100855,
+        "adaptive_features": {}
+      }
+    }
+  },
+  {
+    "timestamp": "2025-07-10T13:42:17.122632",
+    "gamma_walls_count": 10,
+    "hedge_flows_count": 1,
+    "pressure_indicators": {
+      "BTCUSDT": {
+        "nearest_wall_distance": 0.27786001264947113,
+        "gamma_change_rate": -0.14405474594792836,
+        "hedge_pressure": -0.07784998435709276,
+        "gamma_concentration": 0.8710712854105491,
+        "adaptive_features": {}
+      },
+      "ETHUSDT": {
+        "nearest_wall_distance": 0.730657015710383,
+        "gamma_change_rate": 58.49886908958727,
+        "hedge_pressure": 0.17090895768591488,
+        "gamma_concentration": 0.8690519312867171,
+        "adaptive_features": {}
+      }
+    }
+  },
+  {
+    "timestamp": "2025-07-10T13:43:17.431161",
+    "gamma_walls_count": 10,
+    "hedge_flows_count": 1,
+    "pressure_indicators": {
+      "BTCUSDT": {
+        "nearest_wall_distance": 0.3072474245436472,
+        "gamma_change_rate": 0.08893329784431557,
+        "hedge_pressure": -0.07768135786022703,
+        "gamma_concentration": 0.8647258731995662,
+        "adaptive_features": {}
+      },
+      "ETHUSDT": {
+        "nearest_wall_distance": 0.8220598666988311,
+        "gamma_change_rate": 35.241905988991,
+        "hedge_pressure": 0.1704434256783934,
+        "gamma_concentration": 0.8685242712491099,
+        "adaptive_features": {}
+      }
+    }
+  },
+  {
+    "timestamp": "2025-07-10T13:44:17.750149",
+    "gamma_walls_count": 10,
+    "hedge_flows_count": 1,
+    "pressure_indicators": {
+      "BTCUSDT": {
+        "nearest_wall_distance": 0.30690297647631004,
+        "gamma_change_rate": 1.535414831093708,
+        "hedge_pressure": -0.08201020044782731,
+        "gamma_concentration": 0.8431619465649878,
+        "adaptive_features": {}
+      },
+      "ETHUSDT": {
+        "nearest_wall_distance": 0.8718207363642847,
+        "gamma_change_rate": 23.59356785089295,
+        "hedge_pressure": 0.17019326875215213,
+        "gamma_concentration": 0.868252058046475,
+        "adaptive_features": {}
+      }
+    }
+  }
+]

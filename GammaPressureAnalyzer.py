@@ -175,7 +175,8 @@ class GammaPressureAnalyzer:
             gamma = norm.pdf(d1) / (S * sigma * np.sqrt(T_years))
             
             return gamma
-        except:
+        except Exception as e:
+            logger.error(f"Gamma calculation error: {e}")
             return 0.0
     
     def _identify_gamma_walls(self, gamma_dist: Dict, spot: float) -> List[GammaWall]:
@@ -389,14 +390,18 @@ class DealerPositionTracker:
             'position_score': 0.0,  # -1到1，负值表示net short
             'flow_imbalance': 0.0
         }
-        
+        gamma_map = {
+            item['strike']: item['gamma_exposure'] 
+            for item in gamma_dist['profile']
+        }
         # 计算净Greeks敞口
         for _, opt in options.iterrows():
             # 简化假设：做市商是期权的净卖方
             # 实际中需要结合订单流数据
             oi = opt.get('open_interest', 0)
             volume = opt.get('volume', 0)
-            
+            strike = opt.get('strike')
+            option_gamma = gamma_map.get(strike, 0)
             # 使用成交量/持仓量比率估算做市商参与度
             if oi > 0:
                 dealer_ratio = min(volume / oi, 1.0) * 0.7  # 假设做市商占70%成交量
@@ -405,10 +410,9 @@ class DealerPositionTracker:
                 
             # 估算Greeks（简化计算）
             delta = self._estimate_delta(spot, opt)
-            gamma = gamma_dist['profile'][0]['gamma_exposure'] if gamma_dist['profile'] else 0
             
             position['net_delta'] -= delta * oi * dealer_ratio
-            position['net_gamma'] += gamma  # 已在gamma_dist中处理过符号
+            position['net_gamma'] += option_gamma * dealer_ratio #option_gamma已经包含oi
             
         # 计算持仓偏向分数
         if options['open_interest'].sum() > 0:

@@ -1,0 +1,23 @@
+[
+  {
+    "timestamp": "2025-07-10T13:02:36.596131",
+    "gamma_walls_count": 10,
+    "hedge_flows_count": 1,
+    "pressure_indicators": {
+      "BTCUSDT": {
+        "nearest_wall_distance": 0.07627434963946018,
+        "gamma_change_rate": 0.0,
+        "hedge_pressure": -0.08885161861120405,
+        "gamma_concentration": 0.8729097140662323,
+        "adaptive_features": {}
+      },
+      "ETHUSDT": {
+        "nearest_wall_distance": 0.632547441058076,
+        "gamma_change_rate": 0.0,
+        "hedge_pressure": 0.17139141315254497,
+        "gamma_concentration": 0.8695284943341532,
+        "adaptive_features": {}
+      }
+    }
+  }
+]
