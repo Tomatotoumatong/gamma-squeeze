@@ -100,11 +100,14 @@ class GammaSqueezeSystem:
                 'min_strength': 50,
                 'min_confidence': 0.5
             },
-            'performance_tracking': {  # 新增配置
+            'performance_tracking': {
                 'db_path': 'test_output/signal_performance.csv',
-                'check_intervals': [1, 2, 4, 8],  # 小时
-                'update_interval': 300,  # 5分钟更新一次
-                'report_interval': 1800  # 30分钟生成报告
+                'signal_db_path': 'test_output/signal_performance_enhanced.csv',  # 新增
+                'decision_db_path': 'test_output/decision_history.csv',  # 新增
+                'check_intervals': [1, 2, 4, 8],
+                'update_interval': 300,
+                'report_interval': 1800,
+                'decision_interval': 60  # 新增：决策记录间隔
             },
             'display_interval': 30,
             'debug_mode': True,
@@ -251,6 +254,8 @@ class GammaSqueezeSystem:
                 
     async def _signal_generation_loop(self):
         """信号生成循环"""
+        last_decision_time = datetime.utcnow()  # 新增
+        
         while self.running:
             try:
                 await asyncio.sleep(self.config['signal_generation']['interval'])
@@ -267,23 +272,41 @@ class GammaSqueezeSystem:
                     latest_gamma, latest_behavior, market_data
                 )
                 
-                # 处理新信号
+                # 记录决策（新增）
+                current_time = datetime.utcnow()
+                if (current_time - last_decision_time).total_seconds() >= self.config['performance_tracking']['decision_interval']:
+                    # 获取评估的资产列表
+                    assets = set()
+                    if latest_gamma.get('gamma_distribution'):
+                        assets.update(latest_gamma['gamma_distribution'].keys())
+                    
+                    # 获取评分（如果signal_evaluator有这个方法）
+                    scores = {}
+                    for asset in assets:
+                        scores[asset] = self.signal_evaluator._calculate_scores(
+                            asset, latest_gamma, latest_behavior, market_data
+                        )
+                    
+                    # 记录决策
+                    await self.performance_tracker.record_decision(
+                        assets_analyzed=list(assets),
+                        gamma_analysis=latest_gamma,
+                        market_behavior=latest_behavior,
+                        scores=scores,
+                        signals_generated=signals,
+                        suppressed_signals={}
+                    )
+                    last_decision_time = current_time
+                
+                # 处理新信号（原有代码）
                 for signal in signals:
                     self.generated_signals.append(signal)
-                    
-                    # 获取当前价格并开始跟踪
                     current_price = await self._get_current_price(signal.asset)
                     if current_price:
                         self.performance_tracker.track_signal(signal, current_price)
-                        
-                        # Phase 4调试输出
                         if self.config['phase4_debug']:
                             self._print_signal_tracking_started(signal, current_price)
-                    
                     self._print_signal_summary(signal)
-                
-                if len(self.generated_signals) > 200:
-                    self.generated_signals = self.generated_signals[-200:]
                     
             except Exception as e:
                 logger.error(f"Error in signal generation: {e}", exc_info=True)
@@ -587,11 +610,14 @@ async def main():
             'signal_cooldown': 300
         },
         'performance_tracking': {
-            'db_path': 'test_output/signal_performance.csv',
-            'check_intervals': [1, 2, 4, 8],
-            'update_interval': 300,  # 5分钟
-            'report_interval': 1800  # 30分钟
-        },
+                'db_path': 'test_output/signal_performance.csv',
+                'signal_db_path': 'test_output/signal_performance_enhanced.csv',  # 新增
+                'decision_db_path': 'test_output/decision_history.csv',  # 新增
+                'check_intervals': [1, 2, 4, 8],
+                'update_interval': 300,
+                'report_interval': 1800,
+                'decision_interval': 60  # 新增：决策记录间隔
+            },
         'display_interval': 30,
         'debug_mode': True,
         'phase4_debug': True
