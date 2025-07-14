@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Gamma Squeeze Signal System - Self-Evolving Edition
-Integrates AdaptiveLearner for continuous parameter optimization
+Gamma Squeeze Signal System - Self-Evolving Edition with Continuous Learning
 """
 
 import asyncio
@@ -26,6 +25,7 @@ from AdaptiveLearner import EnhancedAdaptiveLearner
 
 # Initialize colorama
 init()
+os.makedirs('test_output', exist_ok=True)
 
 # Configure logging
 logging.basicConfig(
@@ -39,10 +39,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class AdaptiveGammaSqueezeSystem:
-    """Self-Evolving Gamma Squeeze Signal System"""
+    """Self-Evolving Gamma Squeeze Signal System with Continuous Decision Monitoring"""
     
     def __init__(self, config: Optional[dict] = None):
-        self.config = config or self._default_config()
+        self.config = config
         
         # Core components
         self.collector = None
@@ -57,99 +57,17 @@ class AdaptiveGammaSqueezeSystem:
         self.analysis_results = []
         self.behavior_results = []
         self.generated_signals = []
-        self.decision_history = []
+        
+        # Continuous decision tracking
+        self.last_decision_time = datetime.utcnow()
+        self.continuous_decision_count = 0
         
         # Learning state
         self.last_learning_time = datetime.utcnow()
         self.learning_cycle_count = 0
         self.parameter_version = 0
         
-        # Performance metrics
-        self.performance_stats = {}
-        self.learning_effectiveness = {}
-        
         self._setup_signal_handlers()
-        
-    def _default_config(self):
-        """Default configuration with learning parameters"""
-        return {
-            'data_collection': {
-                'deribit': {
-                    'enabled': True,
-                    'symbols': ['BTC', 'ETH'],
-                    'interval': 30
-                },
-                'binance': {
-                    'enabled': True,
-                    'symbols': ['BTCUSDT', 'ETHUSDT'],
-                    'interval': 1
-                },
-                'buffer_size': 2000,
-                'export_interval': 300
-            },
-            'gamma_analysis': {
-                'interval': 60,
-                'wall_percentile': 90,
-                'history_window': 100,
-                'gamma_decay_factor': 0.95,
-                'hedge_flow_threshold': 0.7,
-            },
-            'market_behavior': {
-                'interval': 30,
-                'order_flow': {
-                    'sweep_threshold': 3.0,
-                    'frequency_window': 60
-                },
-                'divergence': {
-                    'lookback_period': 20,
-                    'significance_level': 0.05,
-                    'min_duration': 3
-                },
-                'cross_market': {
-                    'correlation_threshold': 0.7,
-                    'max_lag': 300,
-                    'min_observations': 100
-                },
-                'learning_params': {
-                'enable_ml': True,
-                'update_frequency': 3600  
-            }
-            },
-            'signal_generation': {
-                'interval': 60,
-                'min_strength': 60,
-                'min_confidence': 0.6,
-                'signal_cooldown': 300
-            },
-            'performance_tracking': {
-                'signal_db_path': 'test_output/signal_performance_adaptive.csv',
-                'decision_db_path': 'test_output/decision_history_adaptive.csv',
-                'check_intervals': [5/60, 15/60, 30/60, 1, 2, 4, 8, 24],
-                'update_interval': 300,
-                'report_interval': 1800,
-                'decision_interval': 300
-            },
-            'adaptive_learning': {
-                'enabled': True,
-                'learning_interval': 3600,  # Learn every hour
-                'min_decisions_for_learning': 20,
-                'performance_threshold': 0.6,  # Trigger learning if performance < 60%
-                'learning_rate': 0.1,
-                'parameter_bounds': {
-                    'gamma_pressure.thresholds.critical': (70, 95),
-                    'gamma_pressure.thresholds.high': (50, 80),
-                    'gamma_pressure.wall_proximity_weight': (0.1, 0.5),
-                    'gamma_pressure.hedge_flow_weight': (0.1, 0.5),
-                    'market_momentum.sweep_weight': (0.2, 0.6),
-                    'market_momentum.divergence_weight': (0.1, 0.5),
-                    'signal_generation.min_strength': (40, 70),
-                    'signal_generation.min_confidence': (0.3, 0.8),
-                },
-                'state_file': 'adaptive_learner_state.json'
-            },
-            'display_interval': 30,
-            'debug_mode': True
-        }
         
     def _setup_signal_handlers(self):
         """Setup signal handlers"""
@@ -168,6 +86,7 @@ class AdaptiveGammaSqueezeSystem:
         logger.info("   ✓ Pattern Recognition") 
         logger.info("   ✓ Signal Generation")
         logger.info("   ✓ Performance Tracking")
+        logger.info("   ✓ Continuous Decision Monitoring")
         logger.info("   ✓ Adaptive Learning Engine")
         logger.info("=" * 80)
         
@@ -182,17 +101,16 @@ class AdaptiveGammaSqueezeSystem:
         
         # Initialize adaptive learner
         self.adaptive_learner = EnhancedAdaptiveLearner(self.config['adaptive_learning'])
-        self.adaptive_learner.set_performance_tracker(self.performance_tracker)
         
         # Set up data fetchers
         self.performance_tracker.set_price_fetcher(self._get_current_price)
         self.performance_tracker.set_market_data_fetcher(self._get_market_data)
         
         logger.info("✅ All components initialized successfully")
-        logger.info(f"🧠 Adaptive Learning: {'ENABLED' if self.config['adaptive_learning']['enabled'] else 'DISABLED'}")
+        logger.info(f"🧠 Continuous Learning: ENABLED")
         
     async def start(self):
-        """Start system with learning loops"""
+        """Start system with continuous monitoring"""
         logger.info("\n📊 Starting Self-Evolving System...")
         self.running = True
         
@@ -205,13 +123,197 @@ class AdaptiveGammaSqueezeSystem:
             asyncio.create_task(self._behavior_detection_loop()),
             asyncio.create_task(self._signal_generation_loop()),
             asyncio.create_task(self._performance_update_loop()),
-            asyncio.create_task(self._performance_report_loop()),
-            asyncio.create_task(self._decision_recording_loop()),
-            asyncio.create_task(self._adaptive_learning_loop()),  # New: Learning loop
-            asyncio.create_task(self._learning_report_loop())     # New: Learning reports
+            asyncio.create_task(self._continuous_decision_loop()),  # New: continuous monitoring
+            asyncio.create_task(self._adaptive_learning_loop()),
+            asyncio.create_task(self._learning_report_loop())
         ]
         
         await asyncio.gather(*tasks, return_exceptions=True)
+        
+    async def _continuous_decision_loop(self):
+        """Continuously evaluate decisions every 5 minutes"""
+        while self.running:
+            try:
+                await asyncio.sleep(self.config['adaptive_learning']['continuous_decision_interval'])
+                
+                # Evaluate current decision state
+                continuous_decision = await self._evaluate_continuous_decision()
+                
+                # Record in adaptive learner
+                self.adaptive_learner.record_continuous_decision(continuous_decision)
+                
+                # Increment counter
+                self.continuous_decision_count += 1
+                
+                # Log progress
+                if self.continuous_decision_count % 12 == 0:  # Every hour
+                    logger.info(f"📊 Continuous decisions recorded: {self.continuous_decision_count}")
+                    
+            except Exception as e:
+                logger.error(f"Error in continuous decision loop: {e}", exc_info=True)
+                
+    async def _evaluate_continuous_decision(self) -> Dict:
+        """Evaluate current decision state (signal or no signal)"""
+        decision = {
+            'timestamp': datetime.utcnow(),
+            'decision_type': 'continuous_evaluation',
+            'signal_generated': False,
+            'market_snapshot': {},
+            'scores': {},
+            'suppressed_signals': {},
+            'missed_opportunity': None,
+            'avoided_bad_signal': False,
+            'config_snapshot': self._get_current_config()
+        }
+        
+        # Get current market state
+        if self.analysis_results and self.behavior_results:
+            latest_gamma = self.analysis_results[-1]
+            latest_behavior = self.behavior_results[-1]
+            market_data = self.collector.get_latest_data(window_seconds=300)
+            
+            # Extract analyzed assets
+            assets = set()
+            if latest_gamma.get('gamma_distribution'):
+                assets.update(latest_gamma['gamma_distribution'].keys())
+                
+            # Calculate scores for each asset
+            for asset in assets:
+                try:
+                    asset_scores = self.signal_evaluator._calculate_scores(
+                        asset, latest_gamma, latest_behavior, market_data
+                    )
+                    decision['scores'][asset] = asset_scores
+                    
+                    # Check if signal was suppressed
+                    should_generate = self.signal_evaluator._should_generate_signal(asset, asset_scores)
+                    if not should_generate:
+                        decision['suppressed_signals'][asset] = self._analyze_suppression_reason(
+                            asset, asset_scores
+                        )
+                except Exception as e:
+                    logger.error(f"Error calculating scores for {asset}: {e}")
+            
+            # Record market snapshot
+            decision['market_snapshot'] = await self._capture_market_snapshot()
+            
+            # Store behavior metrics for learning
+            decision['behavior_metrics'] = {
+                'market_regime': latest_behavior.get('market_regime', {}).get('state', 'normal'),
+                'sweep_count': len(latest_behavior.get('sweep_orders', [])),
+                'divergence_count': len(latest_behavior.get('divergences', [])),
+                'anomaly_scores': latest_behavior.get('anomaly_scores', {})
+            }
+            
+            # Check for recent signals
+            recent_signals = [s for s in self.generated_signals 
+                            if (datetime.utcnow() - s.timestamp).total_seconds() < 3600]
+            
+            if recent_signals:
+                decision['signal_generated'] = True
+                decision['signal_id'] = f"{recent_signals[-1].asset}_{recent_signals[-1].timestamp.strftime('%Y%m%d_%H%M%S')}"
+                
+                # Initial feedback based on immediate price movement
+                signal = recent_signals[-1]
+                current_price = await self._get_current_price(signal.asset)
+                if current_price:
+                    price_change = (current_price - signal.metadata.get('initial_price', current_price)) / signal.metadata.get('initial_price', 1)
+                    if signal.direction == 'BULLISH':
+                        decision['initial_feedback'] = min(price_change * 10, 1.0)
+                    else:
+                        decision['initial_feedback'] = min(-price_change * 10, 1.0)
+            
+            # Analyze missed opportunities
+            decision['missed_opportunity'] = self._analyze_missed_opportunity(
+                decision['scores'], decision['suppressed_signals']
+            )
+            
+            # Check if we avoided a bad signal
+            decision['avoided_bad_signal'] = self._check_avoided_bad_signal(
+                decision['suppressed_signals'], market_data
+            )
+            
+        return decision
+    
+    def _analyze_suppression_reason(self, asset: str, scores: Dict[str, float]) -> str:
+        """Analyze why a signal was suppressed"""
+        reasons = []
+        
+        composite_score = np.mean(list(scores.values()))
+        
+        if composite_score < self.config['signal_generation']['min_strength']:
+            reasons.append(f"Low composite score: {composite_score:.1f}")
+            
+        if not self.signal_evaluator._check_cooldown(asset):
+            reasons.append("In cooldown period")
+            
+        high_threshold = self.config['gamma_analysis']['wall_percentile']
+        if not any(score >= high_threshold * 0.9 for score in scores.values()):
+            reasons.append("No dimension reached high threshold")
+            
+        return " | ".join(reasons) if reasons else "Unknown"
+    
+    async def _capture_market_snapshot(self) -> Dict[str, Any]:
+        """Capture current market snapshot"""
+        snapshot = {
+            'timestamp': datetime.utcnow(),
+            'prices': {},
+            'volumes': {},
+            'spreads': {}
+        }
+        
+        df = self.collector.get_latest_data(window_seconds=60)
+        if not df.empty:
+            spot_data = df[df['data_type'] == 'spot']
+            for symbol in spot_data['symbol'].unique():
+                symbol_data = spot_data[spot_data['symbol'] == symbol]
+                if not symbol_data.empty:
+                    latest = symbol_data.iloc[-1]
+                    snapshot['prices'][symbol] = latest.get('price', 0)
+                    snapshot['volumes'][symbol] = latest.get('volume', 0)
+                    snapshot['spreads'][symbol] = latest.get('ask', 0) - latest.get('bid', 0)
+                    
+        return snapshot
+    
+    def _analyze_missed_opportunity(self, scores: Dict, suppressed_signals: Dict) -> Optional[Dict]:
+        """Analyze if we missed a good opportunity"""
+        for asset, asset_scores in scores.items():
+            composite_score = np.mean(list(asset_scores.values()))
+            
+            # High score but suppressed
+            if composite_score > 70 and asset in suppressed_signals:
+                return {
+                    'asset': asset,
+                    'composite_score': composite_score,
+                    'reason': suppressed_signals[asset],
+                    'magnitude': (composite_score - 70) / 30  # 0 to 1 scale
+                }
+        return None
+    
+    def _check_avoided_bad_signal(self, suppressed_signals: Dict, market_data: pd.DataFrame) -> bool:
+        """Check if we correctly avoided a bad signal"""
+        if not suppressed_signals:
+            return False
+            
+        # Simple heuristic: if we suppressed signals during low liquidity or high volatility
+        recent_volumes = market_data[market_data['data_type'] == 'spot']['volume'].values
+        if len(recent_volumes) > 0:
+            avg_volume = np.mean(recent_volumes)
+            recent_volume = recent_volumes[-1] if len(recent_volumes) > 0 else avg_volume
+            
+            # Low liquidity condition
+            if recent_volume < avg_volume * 0.5:
+                return True
+                
+        return False
+    
+    def _get_current_config(self) -> Dict:
+        """Get current configuration snapshot"""
+        return {
+            'gamma_analysis': self.gamma_analyzer.config,
+            'market_behavior': self.behavior_detector.config,
+            'signal_generation': self.signal_evaluator.config
+        }
         
     async def _adaptive_learning_loop(self):
         """Main adaptive learning loop"""
@@ -222,136 +324,25 @@ class AdaptiveGammaSqueezeSystem:
                 if not self.config['adaptive_learning']['enabled']:
                     continue
                 
-                # Check if enough data for learning
-                if len(self.decision_history) < self.config['adaptive_learning']['min_decisions_for_learning']:
-                    logger.info(f"🧠 Not enough decisions for learning: {len(self.decision_history)}")
-                    continue
+                # Perform learning from continuous decisions
+                learning_result = self.adaptive_learner.learn_from_continuous_decisions()
                 
-                # Perform learning
-                await self._perform_adaptive_learning()
-                
+                if learning_result and 'adjustments' in learning_result:
+                    await self._apply_parameter_adjustments(learning_result)
+                    
             except Exception as e:
                 logger.error(f"Error in adaptive learning loop: {e}", exc_info=True)
                 
-    async def _perform_adaptive_learning(self):
-        """Perform adaptive learning cycle"""
-        logger.info(f"\n{'='*60}")
-        logger.info(f"🧠 ADAPTIVE LEARNING CYCLE #{self.learning_cycle_count + 1}")
-        logger.info(f"{'='*60}")
+    async def _apply_parameter_adjustments(self, learning_result: Dict):
+        """Apply parameter adjustments from learning"""
+        adjustments = learning_result.get('adjustments', {})
         
-        try:
-            # Get recent performance stats
-            performance_stats = self.performance_tracker.get_performance_stats(lookback_days=7)
+        if not adjustments:
+            logger.info("No parameter adjustments needed")
+            return
             
-            if not performance_stats:
-                logger.info("No performance data available for learning")
-                return
-            
-            # Get current configurations
-            current_configs = {
-                'gamma_analysis': self.gamma_analyzer.get_current_config() if hasattr(self.gamma_analyzer, 'get_current_config') else self.config['gamma_analysis'],
-                'market_behavior': self.behavior_detector.get_current_config() if hasattr(self.behavior_detector, 'get_current_config') else self.config['market_behavior'],
-                'signal_generation': self.signal_evaluator.config
-            }
-            
-            # Prepare decision history with performance scores
-            enriched_decisions = self._enrich_decision_history()
-            
-            # Learn from decisions
-            learning_result = self.adaptive_learner.learn_from_decisions(
-                enriched_decisions,
-                performance_stats,
-                current_configs
-            )
-            
-            if learning_result and 'adjustments' in learning_result:
-                # Apply parameter adjustments
-                await self._apply_parameter_adjustments(learning_result['adjustments'])
-                
-                # Update learning metrics
-                self.learning_effectiveness = {
-                    'cycle': self.learning_cycle_count + 1,
-                    'timestamp': datetime.utcnow(),
-                    'adjustments_made': len(learning_result['adjustments']),
-                    'regime': learning_result.get('regime', 'unknown'),
-                    'confidence': learning_result.get('confidence', 0),
-                    'expected_improvement': learning_result['learning_decision'].expected_improvement
-                }
-                
-                self.learning_cycle_count += 1
-                self.parameter_version += 1
-                
-                # Print learning summary
-                self._print_learning_summary(learning_result)
-            else:
-                logger.info("🧠 No parameter adjustments needed")
-                
-        except Exception as e:
-            logger.error(f"Error in adaptive learning: {e}", exc_info=True)
-            
-    def _enrich_decision_history(self) -> List[Dict]:
-        """Enrich decision history with performance scores"""
-        enriched = []
-        
-        for i, decision in enumerate(self.decision_history[-100:]):  # Last 100 decisions
-            enriched_decision = {
-                'timestamp': decision['timestamp'],
-                'gamma_metrics': decision.get('gamma_metrics', {}),
-                'behavior_metrics': decision.get('behavior_metrics', {}),
-                'config_used': decision.get('config_snapshot', {}),
-                'performance_score': 0.5  # Default neutral score
-            }
-            
-            # If a signal was generated, get its performance
-            if 'signal_id' in decision and decision['signal_id']:
-                signal_perf = self._get_signal_performance(decision['signal_id'])
-                if signal_perf:
-                    # Calculate composite performance score
-                    enriched_decision['performance_score'] = self._calculate_composite_score(signal_perf)
-            
-            enriched.append(enriched_decision)
-            
-        return enriched
-        
-    def _get_signal_performance(self, signal_id: str) -> Optional[Dict]:
-        """Get performance data for a signal"""
-        try:
-            df = pd.read_csv(self.config['performance_tracking']['signal_db_path'])
-            signal_data = df[df['signal_id'] == signal_id]
-            
-            if not signal_data.empty:
-                return signal_data.iloc[0].to_dict()
-                
-        except Exception as e:
-            logger.error(f"Error getting signal performance: {e}")
-            
-        return None
-        
-    def _calculate_composite_score(self, signal_perf: Dict) -> float:
-        """Calculate composite performance score"""
-        scores = []
-        
-        # Direction score (most important)
-        if pd.notna(signal_perf.get('direction_score')):
-            scores.append(signal_perf['direction_score'] * 0.4)
-            
-        # Timing score
-        if pd.notna(signal_perf.get('timing_score')):
-            scores.append(signal_perf['timing_score'] * 0.3)
-            
-        # Persistence score
-        if pd.notna(signal_perf.get('persistence_score')):
-            scores.append(signal_perf['persistence_score'] * 0.2)
-            
-        # Robustness score
-        if pd.notna(signal_perf.get('robustness_score')):
-            scores.append(signal_perf['robustness_score'] * 0.1)
-            
-        return sum(scores) if scores else 0.5
-        
-    async def _apply_parameter_adjustments(self, adjustments: Dict[str, float]):
-        """Apply parameter adjustments to components"""
         logger.info(f"\n🔧 Applying {len(adjustments)} parameter adjustments")
+        logger.info(f"Market Regime: {learning_result.get('regime', 'unknown')}")
         
         success_count = 0
         
@@ -359,36 +350,40 @@ class AdaptiveGammaSqueezeSystem:
             try:
                 # Parse parameter path
                 parts = param_path.split('.')
-                module = parts[0]
                 
                 # Apply to appropriate module
-                if module == 'gamma_pressure' and len(parts) > 1:
-                    # Update gamma analyzer
-                    update_dict = self._build_nested_dict(param_path, adjustment)
-                    if self.gamma_analyzer.update_parameters(update_dict):
-                        success_count += 1
-                        logger.info(f"✓ Updated {param_path}: {adjustment:.3f}")
-                        
-                elif module == 'market_momentum' and len(parts) > 1:
-                    # Update behavior detector
-                    update_dict = self._build_nested_dict(param_path, adjustment)
+                if parts[0] == 'market_behavior' and hasattr(self.behavior_detector, 'update_parameters'):
+                    update_dict = self._build_nested_dict('.'.join(parts[1:]), adjustment)
                     if self.behavior_detector.update_parameters(update_dict):
                         success_count += 1
                         logger.info(f"✓ Updated {param_path}: {adjustment:.3f}")
                         
-                elif module == 'signal_generation' and len(parts) > 1:
-                    # Update signal evaluator
-                    clean_path = '.'.join(parts[1:])  # Remove 'signal_generation' prefix
-                    update_dict = self._build_nested_dict(clean_path, adjustment)
-                    if self.signal_evaluator.update_parameters(update_dict, f"Adaptive Learning Cycle {self.learning_cycle_count}"):
+                elif parts[0] == 'gamma_analysis' and hasattr(self.gamma_analyzer, 'update_parameters'):
+                    update_dict = self._build_nested_dict('.'.join(parts[1:]), adjustment)
+                    if self.gamma_analyzer.update_parameters(update_dict):
+                        success_count += 1
+                        logger.info(f"✓ Updated {param_path}: {adjustment:.3f}")
+                        
+                elif parts[0] == 'signal_generation':
+                    update_dict = self._build_nested_dict('.'.join(parts[1:]), adjustment)
+                    if self.signal_evaluator.update_parameters(update_dict):
                         success_count += 1
                         logger.info(f"✓ Updated {param_path}: {adjustment:.3f}")
                         
             except Exception as e:
                 logger.error(f"Failed to apply adjustment {param_path}: {e}")
                 
-        logger.info(f"Successfully applied {success_count}/{len(adjustments)} adjustments")
+        self.parameter_version += 1
+        self.learning_cycle_count += 1
         
+        logger.info(f"Successfully applied {success_count}/{len(adjustments)} adjustments")
+        logger.info(f"Parameter version: v{self.parameter_version}")
+        
+        # Print learning decision details
+        if 'learning_decision' in learning_result:
+            decision = learning_result['learning_decision']
+            logger.info(f"Expected improvement: {decision.expected_improvement:+.2%}")
+            
     def _build_nested_dict(self, path: str, value: Any) -> Dict:
         """Build nested dictionary from dot-separated path"""
         parts = path.split('.')
@@ -403,31 +398,15 @@ class AdaptiveGammaSqueezeSystem:
         
         return result
         
-    def _print_learning_summary(self, learning_result: Dict):
-        """Print learning cycle summary"""
-        print(f"\n{Fore.CYAN}🧠 LEARNING SUMMARY{Style.RESET_ALL}")
-        print(f"Regime: {learning_result.get('regime', 'unknown')}")
-        print(f"Confidence: {learning_result.get('confidence', 0):.2f}")
-        print(f"\nAdjustments:")
-        
-        for param, value in learning_result['adjustments'].items():
-            print(f"  {param}: {value:+.3f}")
-            
-        decision = learning_result['learning_decision']
-        print(f"\nExpected Improvement: {decision.expected_improvement:+.2%}")
-        print(f"Decision Basis: {decision.decision_basis}")
-        print(f"Exploration Factor: {decision.exploration_factor:.2f}")
-        
     async def _learning_report_loop(self):
         """Generate periodic learning reports"""
         while self.running:
             try:
                 await asyncio.sleep(3600)  # Every hour
                 
-                if self.adaptive_learner:
-                    report = self.adaptive_learner.get_learning_report()
-                    self._print_learning_report(report)
-                    
+                report = self.adaptive_learner.get_learning_report()
+                self._print_learning_report(report)
+                
             except Exception as e:
                 logger.error(f"Error in learning report loop: {e}", exc_info=True)
                 
@@ -436,40 +415,77 @@ class AdaptiveGammaSqueezeSystem:
         print(f"\n{Fore.MAGENTA}📚 ADAPTIVE LEARNING REPORT{Style.RESET_ALL}")
         print("=" * 80)
         
-        print(f"\nLearning Statistics:")
-        print(f"  Total Learning Decisions: {report['total_learning_decisions']}")
-        print(f"  Current Regime: {report['current_regime']}")
+        print(f"\nContinuous Decision Statistics:")
+        print(f"  Total Decisions: {report['total_continuous_decisions']}")
+        print(f"  Learning Cycles: {report['total_learning_cycles']}")
         
-        # Regime distribution
-        print(f"\nRegime Distribution:")
-        for regime, pct in report['regime_distribution'].items():
-            print(f"  {regime}: {pct:.1%}")
+        # Parameter adjustments
+        if report['parameter_adjustments']:
+            print(f"\nParameter Adjustments Summary:")
+            for param, info in report['parameter_adjustments'].items():
+                if info['total_adjustments'] > 0:
+                    print(f"  {param}:")
+                    print(f"    Adjustments: {info['total_adjustments']}")
+                    print(f"    Net Change: {info['net_change']:+.3f}")
+                    print(f"    Avg Adjustment: {info['avg_adjustment']:+.3f}")
+                    
+        # Performance trend
+        trend = report['performance_trend']
+        if trend['confidence'] > 0:
+            print(f"\nPerformance Trend:")
+            print(f"  Trend: {trend['trend']:+.2%}")
+            print(f"  Confidence: {trend['confidence']:.2f}")
+            print(f"  Current Avg: {trend.get('current_avg', 0):.2f}")
             
-        # Parameter evolution
-        print(f"\nParameter Evolution:")
-        for param, info in report['parameter_evolution'].items():
-            if info['total_adjustments'] > 0:
-                print(f"  {param}:")
-                print(f"    Net Change: {info['net_change']:+.3f}")
-                print(f"    Volatility: {info['volatility']:.3f}")
-                print(f"    Trend: {info['trend']}")
-                
         # Learning effectiveness
         effectiveness = report['learning_effectiveness']
-        if effectiveness.get('confidence', 0) > 0:
+        if effectiveness['confidence'] > 0:
             print(f"\nLearning Effectiveness:")
-            print(f"  Performance Change: {effectiveness['effectiveness']:+.2%}")
-            print(f"  Confidence: {effectiveness['confidence']:.2f}")
-            print(f"  Improvement Rate: {effectiveness['improvement_rate']:.1%}")
+            print(f"  Avg Improvement: {effectiveness['avg_improvement']:+.2%}")
+            print(f"  Positive Rate: {effectiveness['positive_rate']:.1%}")
             
-        # Recommendations
-        if report['recommendations']['high_uncertainty_params']:
-            print(f"\n⚠️ High Uncertainty Parameters:")
-            for param_info in report['recommendations']['high_uncertainty_params']:
-                print(f"  {param_info['parameter']} (variance: {param_info['variance']:.3f})")
-                
         print("=" * 80)
         
+    async def _gamma_analysis_loop(self):
+        """Gamma analysis loop"""
+        while self.running:
+            try:
+                await asyncio.sleep(self.config['gamma_analysis']['interval'])
+                
+                option_data, spot_data = await self._prepare_analysis_data()
+                
+                if option_data.empty or spot_data.empty:
+                    continue
+                
+                analysis_result = self.gamma_analyzer.analyze(option_data, spot_data)
+                self.analysis_results.append(analysis_result)
+                
+                if len(self.analysis_results) > 100:
+                    self.analysis_results = self.analysis_results[-100:]
+                    
+            except Exception as e:
+                logger.error(f"Error in gamma analysis: {e}", exc_info=True)
+                
+    async def _behavior_detection_loop(self):
+        """Behavior detection loop"""
+        while self.running:
+            try:
+                await asyncio.sleep(self.config['market_behavior']['interval'])
+                
+                market_data = self.collector.get_latest_data(window_seconds=300)
+                
+                if market_data.empty:
+                    continue
+                
+                behavior_result = self.behavior_detector.detect(market_data)
+                self.behavior_results.append(behavior_result)
+                
+                if len(self.behavior_results) > 100:
+                    self.behavior_results = self.behavior_results[-100:]
+                    
+            except Exception as e:
+                logger.error(f"Error in behavior detection: {e}", exc_info=True)
+                
     async def _signal_generation_loop(self):
         """Signal generation with learning feedback"""
         while self.running:
@@ -488,16 +504,14 @@ class AdaptiveGammaSqueezeSystem:
                     latest_gamma, latest_behavior, market_data
                 )
                 
-                # Track signals with learning context
+                # Track signals with context
                 for signal in signals:
                     self.generated_signals.append(signal)
                     
-                    # Add learning metadata
-                    signal.metadata['adaptive_context'] = {
-                        'parameter_version': self.parameter_version,
-                        'learning_cycle': self.learning_cycle_count,
-                        'regime': self.learning_effectiveness.get('regime', 'unknown')
-                    }
+                    # Add metadata
+                    signal.metadata['parameter_version'] = self.parameter_version
+                    signal.metadata['learning_cycle'] = self.learning_cycle_count
+                    signal.metadata['initial_price'] = await self._get_current_price(signal.asset)
                     
                     # Track signal
                     market_snapshot = await self._capture_market_snapshot_for_signal(
@@ -505,97 +519,41 @@ class AdaptiveGammaSqueezeSystem:
                     )
                     
                     self.performance_tracker.track_signal_with_context(signal, {
-                        'current_price': await self._get_current_price(signal.asset),
+                        'current_price': signal.metadata['initial_price'],
                         'spread': market_snapshot.get('spread', 0),
                         'ob_imbalance': market_snapshot.get('orderbook_imbalance', 0),
                         'parameter_version': self.parameter_version,
-                        'learning_active': self.config['adaptive_learning']['enabled']
+                        'learning_active': True
                     })
                     
-                    self._print_signal_with_learning_context(signal)
+                    self._print_signal(signal)
                     
             except Exception as e:
                 logger.error(f"Error in signal generation: {e}", exc_info=True)
                 
-    def _print_signal_with_learning_context(self, signal: TradingSignal):
+    def _print_signal(self, signal: TradingSignal):
         """Print signal with learning context"""
         print(f"\n{Fore.GREEN}🎯 SIGNAL GENERATED (v{self.parameter_version}){Style.RESET_ALL}")
         print(f"Asset: {signal.asset} | Direction: {signal.direction}")
-        print(f"Strength: {signal.strength} | Confidence: {signal.confidence}")
+        print(f"Type: {signal.signal_type}")
+        print(f"Strength: {signal.strength} | Confidence: {signal.confidence:.2f}")
+        print(f"Expected Move: {signal.expected_move} | Time Horizon: {signal.time_horizon}")
+        print(f"Key Levels: {', '.join(f'{level:.0f}' for level in signal.key_levels[:3])}")
+        if signal.risk_factors:
+            print(f"Risk Factors: {', '.join(signal.risk_factors)}")
+        print(f"Learning Context: Cycle {self.learning_cycle_count}")
         
-        if 'adaptive_context' in signal.metadata:
-            ctx = signal.metadata['adaptive_context']
-            print(f"Learning Context:")
-            print(f"  Parameter Version: {ctx['parameter_version']}")
-            print(f"  Learning Cycle: {ctx['learning_cycle']}")
-            print(f"  Market Regime: {ctx['regime']}")
-            
-    async def _decision_recording_loop(self):
-        """Record decisions with learning context"""
+    async def _performance_update_loop(self):
+        """Update performance metrics"""
         while self.running:
             try:
-                await asyncio.sleep(self.config['performance_tracking']['decision_interval'])
+                await asyncio.sleep(self.config['performance_tracking']['update_interval'])
                 
-                decision = await self._record_current_decision()
-                if decision:
-                    # Add learning context
-                    decision['parameter_version'] = self.parameter_version
-                    decision['learning_cycle'] = self.learning_cycle_count
-                    decision['config_snapshot'] = {
-                        'gamma_analysis': self.gamma_analyzer.config if hasattr(self.gamma_analyzer, 'config') else {},
-                        'market_behavior': self.behavior_detector.config if hasattr(self.behavior_detector, 'config') else {},
-                        'signal_generation': self.signal_evaluator.config
-                    }
-                    
-                    self.decision_history.append(decision)
-                    
-                    # Keep history size manageable
-                    if len(self.decision_history) > 1000:
-                        self.decision_history = self.decision_history[-1000:]
-                        
+                await self.performance_tracker.update_prices()
+                
             except Exception as e:
-                logger.error(f"Error in decision recording: {e}", exc_info=True)
+                logger.error(f"Error in performance update: {e}", exc_info=True)
                 
-    async def _record_current_decision(self) -> Optional[Dict]:
-        """Record current decision state"""
-        if not self.analysis_results or not self.behavior_results:
-            return None
-            
-        latest_gamma = self.analysis_results[-1]
-        latest_behavior = self.behavior_results[-1]
-        
-        decision = {
-            'timestamp': datetime.utcnow(),
-            'gamma_metrics': self._extract_gamma_metrics(latest_gamma),
-            'behavior_metrics': self._extract_behavior_metrics(latest_behavior)
-        }
-        
-        return decision
-        
-    def _extract_gamma_metrics(self, gamma_analysis: Dict) -> Dict:
-        """Extract key gamma metrics"""
-        metrics = {}
-        
-        for asset, dist in gamma_analysis.get('gamma_distribution', {}).items():
-            metrics[f'{asset}_total_gamma'] = dist.get('total_exposure', 0)
-            metrics[f'{asset}_concentration'] = dist.get('concentration', 0)
-            
-        metrics['total_walls'] = len(gamma_analysis.get('gamma_walls', []))
-        
-        return metrics
-        
-    def _extract_behavior_metrics(self, behavior_analysis: Dict) -> Dict:
-        """Extract key behavior metrics"""
-        metrics = {}
-        metrics['sweep_count'] = len(behavior_analysis.get('sweep_orders', []))
-        metrics['divergence_count'] = len(behavior_analysis.get('divergences', []))
-        metrics['market_regime'] = behavior_analysis.get('market_regime', {}).get('state', 'normal')
-        raw_metrics = behavior_analysis.get('raw_metrics', {})
-        if 'feature_matrix' in raw_metrics and raw_metrics['feature_matrix'] is not None:
-            metrics['feature_matrix'] = raw_metrics['feature_matrix'].tolist()
-        
-        return metrics
-        
     async def _monitor_loop(self):
         """Enhanced monitor with learning status"""
         while self.running:
@@ -614,18 +572,17 @@ class AdaptiveGammaSqueezeSystem:
                 total_signals = len(self.generated_signals)
                 status_parts.append(f"Signals: {active_signals}/{total_signals}")
                 
+                # Continuous decisions
+                status_parts.append(f"Decisions: {self.continuous_decision_count}")
+                
                 # Learning status
-                if self.config['adaptive_learning']['enabled']:
-                    status_parts.append(f"Learn: v{self.parameter_version}")
-                    
-                    if self.learning_effectiveness:
-                        expected_imp = self.learning_effectiveness.get('expected_improvement', 0)
-                        status_parts.append(f"Exp.Δ: {expected_imp:+.1%}")
-                        
-                # Performance
-                if self.performance_stats:
-                    composite = self.performance_stats.get('composite_score', 0)
-                    status_parts.append(f"Perf: {composite:.2f}")
+                status_parts.append(f"v{self.parameter_version}")
+                
+                # Latest adjustment
+                learner_decisions = self.adaptive_learner.continuous_decisions
+                if learner_decisions:
+                    avg_quality = np.mean([d.get('decision_quality', 0.5) for d in list(learner_decisions)[-20:]])
+                    status_parts.append(f"Quality: {avg_quality:.2f}")
                     
                 status_line = " | ".join(status_parts)
                 print(f"\r🔄 {status_line}", end='', flush=True)
@@ -633,10 +590,6 @@ class AdaptiveGammaSqueezeSystem:
             except Exception as e:
                 logger.error(f"Error in monitor loop: {e}")
                 
-    # [Include all other necessary methods from main_3.py with minimal modifications]
-    # _gamma_analysis_loop, _behavior_detection_loop, _performance_update_loop, etc.
-    # These remain largely the same as main_3.py
-    
     async def _prepare_analysis_data(self) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Prepare analysis data"""
         df = self.collector.get_latest_data(window_seconds=120)
@@ -705,91 +658,6 @@ class AdaptiveGammaSqueezeSystem:
             logger.error(f"Error getting market data: {e}")
             return {}
             
-    async def _gamma_analysis_loop(self):
-        """Gamma analysis loop"""
-        while self.running:
-            try:
-                await asyncio.sleep(self.config['gamma_analysis']['interval'])
-                
-                option_data, spot_data = await self._prepare_analysis_data()
-                
-                if option_data.empty or spot_data.empty:
-                    continue
-                
-                analysis_result = self.gamma_analyzer.analyze(option_data, spot_data)
-                self.analysis_results.append(analysis_result)
-                
-                if len(self.analysis_results) > 100:
-                    self.analysis_results = self.analysis_results[-100:]
-                    
-            except Exception as e:
-                logger.error(f"Error in gamma analysis: {e}", exc_info=True)
-                
-    async def _behavior_detection_loop(self):
-        """Behavior detection loop"""
-        while self.running:
-            try:
-                await asyncio.sleep(self.config['market_behavior']['interval'])
-                
-                market_data = self.collector.get_latest_data(window_seconds=300)
-                
-                if market_data.empty:
-                    continue
-                
-                behavior_result = self.behavior_detector.detect(market_data)
-                self.behavior_results.append(behavior_result)
-                
-                if len(self.behavior_results) > 100:
-                    self.behavior_results = self.behavior_results[-100:]
-                    
-            except Exception as e:
-                logger.error(f"Error in behavior detection: {e}", exc_info=True)
-                
-    async def _performance_update_loop(self):
-        """Update performance metrics"""
-        while self.running:
-            try:
-                await asyncio.sleep(self.config['performance_tracking']['update_interval'])
-                
-                await self.performance_tracker.update_prices()
-                
-                self.performance_stats = self.performance_tracker.get_performance_stats(
-                    lookback_days=7
-                )
-                
-            except Exception as e:
-                logger.error(f"Error in performance update: {e}", exc_info=True)
-                
-    async def _performance_report_loop(self):
-        """Performance reporting"""
-        while self.running:
-            try:
-                await asyncio.sleep(self.config['performance_tracking']['report_interval'])
-                
-                if self.performance_stats:
-                    self._print_performance_report()
-                    
-            except Exception as e:
-                logger.error(f"Error in performance report: {e}", exc_info=True)
-                
-    def _print_performance_report(self):
-        """Print performance report"""
-        stats = self.performance_stats
-        
-        print(f"\n{Fore.YELLOW}📊 PERFORMANCE REPORT{Style.RESET_ALL}")
-        print("=" * 60)
-        
-        print(f"Total Signals: {stats.get('total_signals', 0)}")
-        print(f"Composite Score: {stats.get('composite_score', 0):.2f}")
-        
-        if self.learning_effectiveness:
-            print(f"\nLearning Status:")
-            print(f"  Parameter Version: v{self.parameter_version}")
-            print(f"  Learning Cycles: {self.learning_cycle_count}")
-            print(f"  Last Adjustment: {self.learning_effectiveness.get('adjustments_made', 0)} params")
-            
-        print("=" * 60)
-        
     async def _capture_market_snapshot_for_signal(self, asset: str, 
                                                 gamma_analysis: Dict,
                                                 behavior_analysis: Dict) -> Dict:
@@ -830,16 +698,19 @@ class AdaptiveGammaSqueezeSystem:
         self.running = False
         
         if self.adaptive_learner:
-            # Save learning state
-            logger.info("💾 Saving learning state...")
+            # Save learning report
+            logger.info("💾 Saving learning report...")
             learning_report = self.adaptive_learner.get_learning_report()
             
-            with open(f'test_output/learning_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json', 'w') as f:
-                json.dump(learning_report, f, indent=2)
+            report_path = f'test_output/learning_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+            with open(report_path, 'w') as f:
+                json.dump(learning_report, f, indent=2, default=str)
+            logger.info(f"Learning report saved to {report_path}")
                 
         if self.collector:
             logger.info("💾 Exporting data...")
-            self.collector.export_data(f'test_output/gamma_data_adaptive_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
+            data_path = f'test_output/gamma_data_adaptive_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+            self.collector.export_data(data_path)
             
             await self.collector.stop()
             
@@ -887,7 +758,7 @@ async def main():
             },
             'learning_params': {
                 'enable_ml': True,
-                'update_frequency': 3600  # 模型更新频率（秒）
+                'update_frequency': 3600
             }
         },
         'signal_generation': {
@@ -902,25 +773,23 @@ async def main():
             'check_intervals': [5/60, 15/60, 30/60, 1, 2, 4, 8, 24],
             'update_interval': 300,
             'report_interval': 1800,
-            'decision_interval': 300
+            'continuous_evaluation_interval': 300
         },
         'adaptive_learning': {
             'enabled': True,
-            'learning_interval': 1800,  # 30 minutes for testing
-            'min_decisions_for_learning': 10,  # Lower for testing
-            'performance_threshold': 0.6,
             'learning_rate': 0.1,
+            'learning_interval': 1800,  # 30 minutes for testing
+            'min_decisions_for_learning': 20,
+            'continuous_decision_interval': 300,  # 5 minutes
             'parameter_bounds': {
-                'gamma_pressure.thresholds.critical': (70, 95),
-                'gamma_pressure.thresholds.high': (50, 80),
-                'gamma_pressure.wall_proximity_weight': (0.1, 0.5),
-                'gamma_pressure.hedge_flow_weight': (0.1, 0.5),
-                'market_momentum.sweep_weight': (0.2, 0.6),
-                'market_momentum.divergence_weight': (0.1, 0.5),
+                'market_behavior.order_flow.sweep_threshold': (2.0, 4.0),
+                'market_behavior.divergence.min_duration': (2, 10),
+                'market_behavior.divergence.lookback_period': (10, 30),
+                'gamma_analysis.wall_percentile': (70, 95),
+                'gamma_analysis.hedge_flow_threshold': (0.5, 0.9),
                 'signal_generation.min_strength': (40, 70),
                 'signal_generation.min_confidence': (0.3, 0.8),
-            },
-            'state_file': 'adaptive_learner_state.json'
+            }
         },
         'display_interval': 30,
         'debug_mode': True
@@ -938,17 +807,17 @@ async def main():
 
 if __name__ == "__main__":
     print(f"{Fore.GREEN}🚀 Self-Evolving Gamma Squeeze Signal System{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   ✓ Continuous Adaptive Learning{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   ✓ Dynamic Parameter Optimization{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   ✓ Market Regime Recognition{Style.RESET_ALL}")
+    print(f"{Fore.YELLOW}   ✓ Continuous Decision Monitoring{Style.RESET_ALL}")
+    print(f"{Fore.YELLOW}   ✓ Adaptive Parameter Optimization{Style.RESET_ALL}")
+    print(f"{Fore.YELLOW}   ✓ Real-time Learning from Market Feedback{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}   ✓ Performance-Based Evolution{Style.RESET_ALL}")
     print("=" * 80)
-    print("Features:")
-    print("  • Learns from signal performance every hour")
-    print("  • Adjusts parameters based on market regimes")
-    print("  • Tracks parameter evolution and effectiveness")
-    print("  • Provides learning reports and recommendations")
-    print("  • Continuously improves signal accuracy")
+    print("Key Features:")
+    print("  • Records market decisions every 5 minutes")
+    print("  • Learns from both signals and non-signals")
+    print("  • Adjusts parameters based on decision quality")
+    print("  • Tracks missed opportunities and avoided bad signals")
+    print("  • Provides comprehensive learning reports")
     print("=" * 80)
     print("Press Ctrl+C to stop")
     print("=" * 80)
