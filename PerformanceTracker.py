@@ -804,7 +804,63 @@ class PerformanceTracker:
             df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
         
         df.to_csv(self.signal_db_path, index=False)
-    
+        
+    def track_signal_with_context(self, signal: TradingSignal, context: Dict[str, Any]):
+        """跟踪信号并记录完整市场上下文"""
+        # 获取或创建市场快照
+        market_snapshot = self._get_latest_market_snapshot(signal.asset)
+        
+        # 如果没有快照，从context创建简化版
+        if not market_snapshot:
+            market_snapshot = MarketSnapshot(
+                asset=signal.asset,
+                timestamp=datetime.utcnow(),
+                price=context.get('current_price', 0),
+                bid=context.get('current_price', 0) - context.get('spread', 0)/2,
+                ask=context.get('current_price', 0) + context.get('spread', 0)/2,
+                spread=context.get('spread', 0),
+                orderbook_depth={},
+                orderbook_imbalance=context.get('ob_imbalance', 0),
+                recent_trades=[],
+                gamma_distribution={},
+                iv_surface={},
+                put_call_skew=0,
+                nearest_gamma_wall={'distance_pct': context.get('nearest_strike_distance', 0)},
+                trend_strength=0,
+                support_levels=[],
+                resistance_levels=[],
+                momentum_indicators={},
+                volatility_regime='normal',
+                liquidity_score=0.5,
+                market_regime='normal'
+            )
+        
+        # 创建增强的信号性能记录
+        perf = self._create_signal_performance(signal, market_snapshot)
+        
+        # 添加上下文信息到metadata
+        perf.metadata.update({
+            'market_context': context,
+            'entry_conditions': {
+                'spread_bp': context.get('spread', 0) / context.get('current_price', 1) * 10000 if context.get('current_price') else 0,
+                'orderbook_imbalance': context.get('ob_imbalance', 0),
+                'gamma_concentration': context.get('gamma_concentration', 0),
+                'nearest_strike_distance_pct': context.get('nearest_strike_distance', 0),
+            },
+            'signal_details': {
+                'strategy': context.get('strategy', 'unknown'),
+                'confidence_breakdown': context.get('confidence_breakdown', {}),
+                'decision_latency_ms': context.get('decision_time', 0)
+            }
+        })
+        
+        # 保存信号
+        self.active_signals[perf.signal_id] = perf
+        self._save_signal(perf)
+        
+        logger.info(f"Tracking signal {perf.signal_id} with context: "
+                    f"spread={context.get('spread', 0):.2f}, "
+                    f"gamma_conc={context.get('gamma_concentration', 0):.2f}")
     def _save_decision(self, decision: DecisionSnapshot):
         """保存决策记录"""
         try:

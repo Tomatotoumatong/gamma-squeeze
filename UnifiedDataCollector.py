@@ -46,14 +46,77 @@ class DataSource(ABC):
         self.name = name
         self.symbols = symbols
         self.session: Optional[aiohttp.ClientSession] = None
+        self.last_session_create = None  # 新增：记录session创建时间
+        self.session_lifetime = 3600  # 新增：session生命周期（秒）
         
     async def __aenter__(self):
-        self.session = aiohttp.ClientSession()
+        # 修改：添加连接池和超时配置
+        connector = aiohttp.TCPConnector(
+            limit=100,
+            limit_per_host=30,
+            ttl_dns_cache=300
+        )
+        
+        timeout = aiohttp.ClientTimeout(
+            total=30,
+            connect=10,
+            sock_read=10
+        )
+        
+        self.session = aiohttp.ClientSession(
+            connector=connector,
+            timeout=timeout
+        )
+        self.last_session_create = datetime.now()  # 记录创建时间
         return self
         
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self.session:
             await self.session.close()
+            
+    # 新增：检查并刷新session
+    async def ensure_session(self):
+        """确保session有效，必要时重建"""
+        if not self.session or self.session.closed:
+            await self.__aenter__()
+        elif self.last_session_create:
+            # 如果session太老，重建
+            age = (datetime.now() - self.last_session_create).total_seconds()
+            if age > self.session_lifetime:
+                await self.session.close()
+                await self.__aenter__()
+    
+    # 新增：带重试的请求方法
+    async def request_with_retry(self, method: str, url: str, 
+                                 max_retries: int = 3, **kwargs) -> Optional[Any]:
+        """带重试机制的HTTP请求"""
+        # 添加代理
+        if hasattr(self, 'proxy_url'):
+            kwargs['proxy'] = proxy_url
+            
+        for attempt in range(max_retries):
+            try:
+                await self.ensure_session()  # 确保session有效
+                
+                async with self.session.request(method, url, **kwargs) as resp:
+                    if resp.status == 200:
+                        return await resp.json()
+                    else:
+                        logger.warning(f"{self.name} HTTP {resp.status} for {url}")
+                        
+            except asyncio.TimeoutError:
+                logger.error(f"{self.name} timeout (attempt {attempt + 1}/{max_retries})")
+            except aiohttp.ClientError as e:
+                logger.error(f"{self.name} connection error (attempt {attempt + 1}/{max_retries}): {e}")
+            except Exception as e:
+                logger.error(f"{self.name} unexpected error: {e}")
+                break
+                
+            # 重试前等待（指数退避）
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2 ** attempt)
+                
+        return None
             
     @abstractmethod
     async def fetch(self) -> List[DataPoint]:
@@ -66,6 +129,7 @@ class DeribitSource(DataSource):
     def __init__(self, symbols: List[str] = ["BTC", "ETH"]):
         super().__init__("deribit", symbols)
         self.base_url = "https://www.deribit.com/api/v2/public"
+        self.proxy_url = proxy_url 
         
     async def fetch(self) -> List[DataPoint]:
         """获取期权数据"""
@@ -112,9 +176,11 @@ class DeribitSource(DataSource):
             'expired': 'false'
         }
         
-        async with self.session.get(url, proxy=proxy_url, params=params) as resp:
-            data = await resp.json()
-            instruments = data.get('result', [])
+        result = await self.request_with_retry('GET', url, params=params)
+        if result:
+            instruments = result.get('result', [])
+        else:
+            instruments = []
             
         if not instruments:
             return []
@@ -210,9 +276,8 @@ class DeribitSource(DataSource):
         url = f"{self.base_url}/ticker"
         params = {'instrument_name': instrument}
         
-        async with self.session.get(url, proxy=proxy_url, params=params) as resp:
-            data = await resp.json()
-            return data.get('result')
+        result = await self.request_with_retry('GET', url, params=params)
+        return result.get('result') if result else None
 
 # Binance现货数据源
 class BinanceSource(DataSource):
@@ -220,6 +285,7 @@ class BinanceSource(DataSource):
     def __init__(self, symbols: List[str] = ["BTCUSDT", "ETHUSDT"]):
         super().__init__("binance", symbols)
         self.base_url = "https://api.binance.com/api/v3"
+        self.proxy_url = proxy_url
         
     async def fetch(self) -> List[DataPoint]:
         """获取现货数据"""
@@ -272,16 +338,14 @@ class BinanceSource(DataSource):
         url = f"{self.base_url}/ticker/24hr"
         params = {'symbol': symbol}
         
-        async with self.session.get(url, proxy=proxy_url, params=params) as resp:
-            return await resp.json()
-            
+        return await self.request_with_retry('GET', url, params=params)
+        
     async def _get_orderbook(self, symbol: str) -> Optional[Dict]:
         """获取订单簿数据"""
         url = f"{self.base_url}/depth"
         params = {'symbol': symbol, 'limit': 20}
         
-        async with self.session.get(url, proxy=proxy_url, params=params) as resp:
-            return await resp.json()
+        return await self.request_with_retry('GET', url, params=params)
 
 # Greeks计算器
 class GreeksCalculator:
@@ -445,10 +509,17 @@ class UnifiedDataCollector:
             
     async def _collect_loop(self, source: DataSource, interval: float):
         """数据采集循环"""
+        consecutive_errors = 0  # 新增：连续错误计数
+        max_consecutive_errors = 5  # 新增：最大连续错误次数
+        
         while self._running:
             try:
                 # 采集数据
                 data_points = await source.fetch()
+                
+                # 成功后重置错误计数
+                if data_points:
+                    consecutive_errors = 0
                 
                 # 处理数据点
                 for dp in data_points:
@@ -458,8 +529,17 @@ class UnifiedDataCollector:
                 await asyncio.sleep(interval)
                 
             except Exception as e:
-                logger.error(f"Error in collect loop for {source.name}: {e}")
-                await asyncio.sleep(interval)
+                consecutive_errors += 1
+                logger.error(f"Error in collect loop for {source.name} ({consecutive_errors}): {e}")
+                
+                # 如果连续错误太多，增加等待时间
+                if consecutive_errors >= max_consecutive_errors:
+                    wait_time = min(interval * 5, 300)  # 最多等待5分钟
+                    logger.warning(f"{source.name} having issues, waiting {wait_time}s")
+                    await asyncio.sleep(wait_time)
+                    consecutive_errors = 0  # 重置计数
+                else:
+                    await asyncio.sleep(interval)
                 
     async def _process_data_point(self, data_point: DataPoint):
         """处理单个数据点"""
