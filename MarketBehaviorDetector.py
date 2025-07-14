@@ -269,7 +269,22 @@ class MarketBehaviorDetector:
             metrics['high_quality_cross_market_rate'] = valid_signals / max(len(self.cross_market_history), 1)
         
         return metrics
-
+    
+    def get_ml_ready_features(self) -> Dict[str, np.ndarray]:
+        """获取ML就绪的特征供AdaptiveLearner使用"""
+        if not self.config['learning_params']['enable_ml']:
+            return {}
+        
+        # 返回最近计算的特征矩阵
+        features = {}
+        for symbol in self.anomaly_detector.anomaly_history:
+            history = self.anomaly_detector.anomaly_history[symbol]
+            if history:
+                features[symbol] = np.array([
+                    h['components']['sweep'] for h in history[-100:]
+                ])
+        
+        return features
 
 class OrderFlowAnalyzer:
     """订单流分析器"""
