@@ -1,1 +1,0 @@
-signal_id,signal_timestamp,asset,signal_type,direction,initial_price,strength,confidence,expected_move,time_horizon,price_2h,price_4h,price_6h,price_12h,actual_move_2h,actual_move_4h,actual_move_6h,actual_move_12h,direction_hit,magnitude_accuracy,timing_accuracy,metadata,evaluation_complete,evaluation_timestamp
