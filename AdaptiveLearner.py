@@ -293,26 +293,65 @@ class EnhancedAdaptiveLearner:
         
         logger.info(f"Recorded continuous decision: type={decision.get('decision_type')}, "
                    f"quality={decision['decision_quality']:.2f}")
-    
+
     def _evaluate_decision_quality(self, decision: Dict) -> float:
-        """评估决策质量"""
+        """评估决策质量 - 连续化版本"""
         quality = 0.5  # 基准分
         
-        # 如果错过了机会，降低质量分
-        if decision.get('missed_opportunity'):
-            magnitude = decision['missed_opportunity'].get('magnitude', 0)
-            quality -= min(abs(magnitude) * 0.1, 0.3)
+        # 1. 反事实分析 - 使用连续函数
+        counterfactual = decision.get('counterfactual_data', {})
+        for asset, cf_data in counterfactual.items():
+            potential = cf_data.get('potential_signal_strength', 0) / 100  # 归一化到0-1
+            opportunity = cf_data.get('missed_opportunity_score', 0)
+            
+            # 使用sigmoid型函数，在中间区域更敏感
+            # potential接近0.5时斜率最大，两端趋于平缓
+            potential_impact = (potential - 0.5) * 2  # -1 到 1
+            quality_adjustment = -0.2 * (1 / (1 + np.exp(-5 * potential_impact)))
+            quality += quality_adjustment
+            
+            # 错失机会的连续惩罚
+            # 使用平方根使小机会的惩罚较轻，大机会的惩罚递增但不过度
+            quality -= 0.3 * np.sqrt(opportunity)
         
-        # 如果正确避免了糟糕信号，提高质量分
-        if decision.get('avoided_bad_signal'):
-            quality += 0.2
+        # 2. 市场行为指标 - 组合多个信号
+        behavior = decision.get('behavior_metrics', {})
+        sweep_count = behavior.get('sweep_count', 0)
+        anomaly_scores = behavior.get('anomaly_scores', {})
+        
+        if anomaly_scores:
+            max_anomaly = max(anomaly_scores.values(), default=0)
+            # 组合扫单数量和异常分数，使用乘积形式
+            # 这样只有两者都高时才会有显著影响
+            market_activity = (sweep_count / 10) * max_anomaly  # 归一化
+            quality -= 0.15 * np.tanh(market_activity * 2)  # tanh限制在[-1,1]
+        
+        # 3. 评分一致性分析
+        scores = decision.get('scores', {})
+        all_scores = []
+        for asset_scores in scores.values():
+            if isinstance(asset_scores, dict):
+                all_scores.extend(asset_scores.values())
+        
+        if all_scores:
+            # 归一化分数到0-1
+            normalized_scores = [s/100 for s in all_scores]
+            max_score = max(normalized_scores)
+            score_std = np.std(normalized_scores)
             
-        # 如果发出了信号，根据初步反馈调整
-        if decision.get('signal_generated'):
-            initial_feedback = decision.get('initial_feedback', 0)
-            quality += initial_feedback * 0.2
+            # 高分信号的连续惩罚
+            high_score_penalty = -0.15 * (max_score - 0.7) if max_score > 0.7 else 0
             
-        return np.clip(quality, 0, 1)
+            # 分散度奖励 - 使用对数函数避免过度奖励
+            dispersion_bonus = 0.1 * np.log1p(score_std * 5)
+            
+            quality += high_score_penalty + dispersion_bonus
+        
+        # 4. 添加一些正则化，避免极端值
+        # 使用soft clipping，避免硬边界
+        quality = 0.5 + 0.4 * np.tanh((quality - 0.5) * 3)
+        
+        return quality
     
     def learn_from_continuous_decisions(self) -> Dict[str, Any]:
         """从连续决策中学习"""

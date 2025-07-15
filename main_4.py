@@ -25,7 +25,6 @@ from AdaptiveLearner import EnhancedAdaptiveLearner
 
 # Initialize colorama
 init()
-os.makedirs('test_output', exist_ok=True)
 
 # Configure logging
 logging.basicConfig(
@@ -72,7 +71,7 @@ class AdaptiveGammaSqueezeSystem:
     def _setup_signal_handlers(self):
         """Setup signal handlers"""
         def signal_handler(sig, frame):
-            logger.info("\n⚠️ Received interrupt signal, shutting down gracefully...")
+            logger.info("\n Received interrupt signal, shutting down gracefully...")
             asyncio.create_task(self.shutdown())
             
         signal.signal(signal.SIGINT, signal_handler)
@@ -81,7 +80,7 @@ class AdaptiveGammaSqueezeSystem:
     async def initialize(self):
         """Initialize system with adaptive learning"""
         logger.info("=" * 80)
-        logger.info("🚀 Initializing Self-Evolving Gamma Squeeze Signal System")
+        logger.info(" Initializing Self-Evolving Gamma Squeeze Signal System")
         logger.info("   ✓ Data Collection")
         logger.info("   ✓ Pattern Recognition") 
         logger.info("   ✓ Signal Generation")
@@ -106,12 +105,12 @@ class AdaptiveGammaSqueezeSystem:
         self.performance_tracker.set_price_fetcher(self._get_current_price)
         self.performance_tracker.set_market_data_fetcher(self._get_market_data)
         
-        logger.info("✅ All components initialized successfully")
-        logger.info(f"🧠 Continuous Learning: ENABLED")
+        logger.info(" ✓ All components initialized successfully")
+        logger.info(f" Continuous Learning: ENABLED")
         
     async def start(self):
         """Start system with continuous monitoring"""
-        logger.info("\n📊 Starting Self-Evolving System...")
+        logger.info("\n Starting Self-Evolving System...")
         self.running = True
         
         await self.collector.start()
@@ -147,7 +146,7 @@ class AdaptiveGammaSqueezeSystem:
                 
                 # Log progress
                 if self.continuous_decision_count % 12 == 0:  # Every hour
-                    logger.info(f"📊 Continuous decisions recorded: {self.continuous_decision_count}")
+                    logger.info(f"Continuous decisions recorded: {self.continuous_decision_count}")
                     
             except Exception as e:
                 logger.error(f"Error in continuous decision loop: {e}", exc_info=True)
@@ -412,39 +411,39 @@ class AdaptiveGammaSqueezeSystem:
                 
     def _print_learning_report(self, report: Dict):
         """Print comprehensive learning report"""
-        print(f"\n{Fore.MAGENTA}📚 ADAPTIVE LEARNING REPORT{Style.RESET_ALL}")
-        print("=" * 80)
+        logger.info(f"\n{Fore.MAGENTA} ADAPTIVE LEARNING REPORT{Style.RESET_ALL}")
+        logger.info("=" * 80)
         
-        print(f"\nContinuous Decision Statistics:")
-        print(f"  Total Decisions: {report['total_continuous_decisions']}")
-        print(f"  Learning Cycles: {report['total_learning_cycles']}")
+        logger.info(f"\nContinuous Decision Statistics:")
+        logger.info(f"  Total Decisions: {report['total_continuous_decisions']}")
+        logger.info(f"  Learning Cycles: {report['total_learning_cycles']}")
         
         # Parameter adjustments
         if report['parameter_adjustments']:
-            print(f"\nParameter Adjustments Summary:")
+            logger.info(f"\nParameter Adjustments Summary:")
             for param, info in report['parameter_adjustments'].items():
                 if info['total_adjustments'] > 0:
-                    print(f"  {param}:")
-                    print(f"    Adjustments: {info['total_adjustments']}")
-                    print(f"    Net Change: {info['net_change']:+.3f}")
-                    print(f"    Avg Adjustment: {info['avg_adjustment']:+.3f}")
+                    logger.info(f"  {param}:")
+                    logger.info(f"    Adjustments: {info['total_adjustments']}")
+                    logger.info(f"    Net Change: {info['net_change']:+.3f}")
+                    logger.info(f"    Avg Adjustment: {info['avg_adjustment']:+.3f}")
                     
         # Performance trend
         trend = report['performance_trend']
         if trend['confidence'] > 0:
-            print(f"\nPerformance Trend:")
-            print(f"  Trend: {trend['trend']:+.2%}")
-            print(f"  Confidence: {trend['confidence']:.2f}")
-            print(f"  Current Avg: {trend.get('current_avg', 0):.2f}")
+            logger.info(f"\nPerformance Trend:")
+            logger.info(f"  Trend: {trend['trend']:+.2%}")
+            logger.info(f"  Confidence: {trend['confidence']:.2f}")
+            logger.info(f"  Current Avg: {trend.get('current_avg', 0):.2f}")
             
         # Learning effectiveness
         effectiveness = report['learning_effectiveness']
         if effectiveness['confidence'] > 0:
-            print(f"\nLearning Effectiveness:")
-            print(f"  Avg Improvement: {effectiveness['avg_improvement']:+.2%}")
-            print(f"  Positive Rate: {effectiveness['positive_rate']:.1%}")
+            logger.info(f"\nLearning Effectiveness:")
+            logger.info(f"  Avg Improvement: {effectiveness['avg_improvement']:+.2%}")
+            logger.info(f"  Positive Rate: {effectiveness['positive_rate']:.1%}")
             
-        print("=" * 80)
+        logger.info("=" * 80)
         
     async def _gamma_analysis_loop(self):
         """Gamma analysis loop"""
@@ -533,15 +532,15 @@ class AdaptiveGammaSqueezeSystem:
                 
     def _print_signal(self, signal: TradingSignal):
         """Print signal with learning context"""
-        print(f"\n{Fore.GREEN}🎯 SIGNAL GENERATED (v{self.parameter_version}){Style.RESET_ALL}")
-        print(f"Asset: {signal.asset} | Direction: {signal.direction}")
-        print(f"Type: {signal.signal_type}")
-        print(f"Strength: {signal.strength} | Confidence: {signal.confidence:.2f}")
-        print(f"Expected Move: {signal.expected_move} | Time Horizon: {signal.time_horizon}")
-        print(f"Key Levels: {', '.join(f'{level:.0f}' for level in signal.key_levels[:3])}")
+        logger.info(f"\n{Fore.GREEN}!!!!! SIGNAL GENERATED !!!!! (v{self.parameter_version}){Style.RESET_ALL}")
+        logger.info(f"Asset: {signal.asset} | Direction: {signal.direction}")
+        logger.info(f"Type: {signal.signal_type}")
+        logger.info(f"Strength: {signal.strength} | Confidence: {signal.confidence:.2f}")
+        logger.info(f"Expected Move: {signal.expected_move} | Time Horizon: {signal.time_horizon}")
+        logger.info(f"Key Levels: {', '.join(f'{level:.0f}' for level in signal.key_levels[:3])}")
         if signal.risk_factors:
-            print(f"Risk Factors: {', '.join(signal.risk_factors)}")
-        print(f"Learning Context: Cycle {self.learning_cycle_count}")
+            logger.info(f"Risk Factors: {', '.join(signal.risk_factors)}")
+        logger.info(f"Learning Context: Cycle {self.learning_cycle_count}")
         
     async def _performance_update_loop(self):
         """Update performance metrics"""
@@ -585,12 +584,14 @@ class AdaptiveGammaSqueezeSystem:
                     status_parts.append(f"Quality: {avg_quality:.2f}")
                     
                 status_line = " | ".join(status_parts)
-                print(f"\r🔄 {status_line}", end='', flush=True)
+                timestamp = datetime.now().strftime("%H:%M:%S")
+                logger.info(f"[{timestamp}] - {status_line}")
                 
             except Exception as e:
                 logger.error(f"Error in monitor loop: {e}")
                 
-    async def _prepare_analysis_data(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+    from typing import Tuple
+    async def _prepare_analysis_data(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Prepare analysis data"""
         df = self.collector.get_latest_data(window_seconds=120)
         
@@ -694,12 +695,12 @@ class AdaptiveGammaSqueezeSystem:
         
     async def shutdown(self):
         """Shutdown system"""
-        logger.info("\n🛑 Shutting down Adaptive System...")
+        logger.info("\n Shutting down Adaptive System...")
         self.running = False
         
         if self.adaptive_learner:
             # Save learning report
-            logger.info("💾 Saving learning report...")
+            logger.info(" Saving learning report...")
             learning_report = self.adaptive_learner.get_learning_report()
             
             report_path = f'test_output/learning_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
@@ -708,13 +709,13 @@ class AdaptiveGammaSqueezeSystem:
             logger.info(f"Learning report saved to {report_path}")
                 
         if self.collector:
-            logger.info("💾 Exporting data...")
+            logger.info(" Exporting data...")
             data_path = f'test_output/gamma_data_adaptive_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
             self.collector.export_data(data_path)
             
             await self.collector.stop()
             
-        logger.info("✅ Shutdown complete")
+        logger.info(" ✓ Shutdown complete")
 
 async def main():
     """Main function"""
@@ -743,7 +744,7 @@ async def main():
         'market_behavior': {
             'interval': 30,
             'order_flow': {
-                'sweep_threshold': 3.0,
+                'sweep_threshold': 2.5,
                 'frequency_window': 60
             },
             'divergence': {
@@ -806,21 +807,21 @@ async def main():
         await system.shutdown()
 
 if __name__ == "__main__":
-    print(f"{Fore.GREEN}🚀 Self-Evolving Gamma Squeeze Signal System{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   ✓ Continuous Decision Monitoring{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   ✓ Adaptive Parameter Optimization{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   ✓ Real-time Learning from Market Feedback{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   ✓ Performance-Based Evolution{Style.RESET_ALL}")
-    print("=" * 80)
-    print("Key Features:")
-    print("  • Records market decisions every 5 minutes")
-    print("  • Learns from both signals and non-signals")
-    print("  • Adjusts parameters based on decision quality")
-    print("  • Tracks missed opportunities and avoided bad signals")
-    print("  • Provides comprehensive learning reports")
-    print("=" * 80)
-    print("Press Ctrl+C to stop")
-    print("=" * 80)
+    logger.info(f"{Fore.GREEN} Self-Evolving Gamma Squeeze Signal System{Style.RESET_ALL}")
+    logger.info(f"{Fore.YELLOW}   ✓ Continuous Decision Monitoring{Style.RESET_ALL}")
+    logger.info(f"{Fore.YELLOW}   ✓ Adaptive Parameter Optimization{Style.RESET_ALL}")
+    logger.info(f"{Fore.YELLOW}   ✓ Real-time Learning from Market Feedback{Style.RESET_ALL}")
+    logger.info(f"{Fore.YELLOW}   ✓ Performance-Based Evolution{Style.RESET_ALL}")
+    logger.info("=" * 80)
+    logger.info("Key Features:")
+    logger.info("  • Records market decisions every 5 minutes")
+    logger.info("  • Learns from both signals and non-signals")
+    logger.info("  • Adjusts parameters based on decision quality")
+    logger.info("  • Tracks missed opportunities and avoided bad signals")
+    logger.info("  • Provides comprehensive learning reports")
+    logger.info("=" * 80)
+    logger.info("Press Ctrl+C to stop")
+    logger.info("=" * 80)
     
     import os
     os.makedirs('test_output', exist_ok=True)
