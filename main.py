@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+0000
 Gamma Squeeze Signal System - Self-Evolving Edition with Continuous Learning
 Fixed version with proper adjustment handling and data type enforcement
 """
@@ -159,7 +160,7 @@ class AdaptiveGammaSqueezeSystem:
                 logger.error(f"Error in continuous decision loop: {e}", exc_info=True)
                 
     async def _evaluate_continuous_decision(self) -> Dict:
-        """Evaluate current decision state (signal or no signal)"""
+        """Evaluate current decision state with enhanced data capture"""
         decision = {
             'timestamp': datetime.utcnow(),
             'decision_type': 'continuous_evaluation',
@@ -182,8 +183,17 @@ class AdaptiveGammaSqueezeSystem:
             assets = set()
             if latest_gamma.get('gamma_distribution'):
                 assets.update(latest_gamma['gamma_distribution'].keys())
-                
-            # Calculate scores for each asset
+            
+            # Use enhanced market snapshot capture
+            enhanced_snapshots = {}
+            for asset in assets:
+                snapshot = await self.performance_tracker.capture_enhanced_market_snapshot(
+                    asset, latest_gamma, latest_behavior, market_data
+                )
+                if snapshot:
+                    enhanced_snapshots[asset] = snapshot
+            
+            # Calculate scores with rich context
             for asset in assets:
                 try:
                     asset_scores = self.signal_evaluator._calculate_scores(
@@ -200,6 +210,24 @@ class AdaptiveGammaSqueezeSystem:
                 except Exception as e:
                     logger.error(f"Error calculating scores for {asset}: {e}")
             
+            # Use enhanced snapshot data for counterfactual analysis
+            if enhanced_snapshots:
+                # Store rich behavioral metrics for learning
+                decision['behavior_metrics'] = {
+                    'market_regime': latest_behavior.get('market_regime', {}).get('state', 'normal'),
+                    'sweep_details': {
+                        asset: len(snapshot.sweep_orders)
+                        for asset, snapshot in enhanced_snapshots.items()
+                    },
+                    'divergence_details': {
+                        asset: [d['type'] for d in snapshot.divergences]
+                        for asset, snapshot in enhanced_snapshots.items()
+                    },
+                    'anomaly_scores': {
+                        asset: snapshot.anomaly_score
+                        for asset, snapshot in enhanced_snapshots.items()
+                    }
+                }
             # Record market snapshot
             decision['market_snapshot'] = await self._capture_market_snapshot()
             
@@ -282,17 +310,28 @@ class AdaptiveGammaSqueezeSystem:
         return snapshot
     
     def _analyze_missed_opportunity(self, scores: Dict, suppressed_signals: Dict) -> Optional[Dict]:
-        """Analyze if we missed a good opportunity"""
+        """Analyze if we missed a good opportunity with enhanced context"""
         for asset, asset_scores in scores.items():
             composite_score = np.mean(list(asset_scores.values()))
             
             # High score but suppressed
             if composite_score > 70 and asset in suppressed_signals:
+                # Get enhanced snapshot data if available
+                missed_context = {}
+                if hasattr(self, 'performance_tracker') and asset in self.performance_tracker.behavior_cache:
+                    recent_behavior = self.performance_tracker.behavior_cache[asset][-1]
+                    missed_context = {
+                        'had_sweep_activity': len(recent_behavior.get('sweeps', [])) > 0,
+                        'had_divergences': len(recent_behavior.get('divergences', [])) > 0,
+                        'anomaly_level': recent_behavior.get('anomaly_score', 0)
+                    }
+                
                 return {
                     'asset': asset,
                     'composite_score': composite_score,
                     'reason': suppressed_signals[asset],
-                    'magnitude': (composite_score - 70) / 30  # 0 to 1 scale
+                    'magnitude': (composite_score - 70) / 30,
+                    'behavioral_context': missed_context  # Enhanced context for learning
                 }
         return None
     
@@ -545,7 +584,7 @@ class AdaptiveGammaSqueezeSystem:
                 logger.error(f"Error in behavior detection: {e}", exc_info=True)
                 
     async def _signal_generation_loop(self):
-        """Signal generation with learning feedback"""
+        """Signal generation with enhanced tracking"""
         while self.running:
             try:
                 await asyncio.sleep(self.config['signal_generation']['interval'])
@@ -557,38 +596,77 @@ class AdaptiveGammaSqueezeSystem:
                 latest_behavior = self.behavior_results[-1]
                 market_data = self.collector.get_latest_data(window_seconds=300)
                 
+                # Extract assets for analysis
+                assets = set()
+                if latest_gamma.get('gamma_distribution'):
+                    assets.update(latest_gamma['gamma_distribution'].keys())
+                
+                # Calculate scores
+                all_scores = {}
+                for asset in assets:
+                    scores = self.signal_evaluator._calculate_scores(
+                        asset, latest_gamma, latest_behavior, market_data
+                    )
+                    all_scores[asset] = scores
+                
                 # Generate signals
                 signals = self.signal_evaluator.evaluate(
                     latest_gamma, latest_behavior, market_data
                 )
                 
-                # Track signals with context
+                # Track suppressed signals
+                suppressed = {}
+                for asset in assets:
+                    if asset not in [s.asset for s in signals]:
+                        composite_score = np.mean(list(all_scores.get(asset, {}).values()))
+                        if composite_score > 30:  # Had potential but was suppressed
+                            suppressed[asset] = self._analyze_suppression_reason(asset, all_scores[asset])
+                
+                # Use enhanced decision recording
+                await self.performance_tracker.record_decision_enhanced(
+                    list(assets),
+                    latest_gamma,
+                    latest_behavior,
+                    market_data,
+                    all_scores,
+                    signals,
+                    suppressed
+                )
+                
+                # Track signals with enhanced context
                 for signal in signals:
-                    self.generated_signals.append(signal)
-                    
-                    # Add metadata
-                    signal.metadata['parameter_version'] = self.parameter_version
-                    signal.metadata['learning_cycle'] = self.learning_cycle_count
-                    signal.metadata['initial_price'] = await self._get_current_price(signal.asset)
-                    
-                    # Track signal
-                    market_snapshot = await self._capture_market_snapshot_for_signal(
-                        signal.asset, latest_gamma, latest_behavior
+                    # Capture enhanced market snapshot
+                    enhanced_snapshot = await self.performance_tracker.capture_enhanced_market_snapshot(
+                        signal.asset, latest_gamma, latest_behavior, market_data
                     )
                     
-                    self.performance_tracker.track_signal_with_context(signal, {
-                        'current_price': signal.metadata['initial_price'],
-                        'spread': market_snapshot.get('spread', 0),
-                        'ob_imbalance': market_snapshot.get('orderbook_imbalance', 0),
-                        'parameter_version': self.parameter_version,
-                        'learning_active': True
-                    })
-                    
+                    if enhanced_snapshot:
+                        # Build rich context
+                        context = {
+                            'current_price': enhanced_snapshot.price,
+                            'spread': enhanced_snapshot.spread,
+                            'ob_imbalance': enhanced_snapshot.orderbook_imbalance,
+                            'parameter_version': self.parameter_version,
+                            'learning_active': True,
+                            # Rich behavioral context
+                            'sweep_count': len(enhanced_snapshot.sweep_orders),
+                            'sweep_sides': {
+                                'buy': sum(1 for s in enhanced_snapshot.sweep_orders if s.get('side') == 'buy'),
+                                'sell': sum(1 for s in enhanced_snapshot.sweep_orders if s.get('side') == 'sell')
+                            },
+                            'divergence_active': len(enhanced_snapshot.divergences) > 0,
+                            'gamma_concentration': len(enhanced_snapshot.gamma_distribution),
+                            'nearest_strike_distance': enhanced_snapshot.nearest_gamma_wall.get('distance_pct', 0)
+                        }
+                        
+                        self.performance_tracker.track_signal_with_context(signal, context)
+                        
                     self._print_signal(signal)
                     
             except Exception as e:
                 logger.error(f"Error in signal generation: {e}", exc_info=True)
-                
+
+                    
     def _print_signal(self, signal: TradingSignal):
         """Print signal with learning context"""
         logger.info(f"\n{Fore.GREEN}!!!!! SIGNAL GENERATED !!!!! (v{self.parameter_version}){Style.RESET_ALL}")
@@ -831,8 +909,13 @@ async def main():
             'decision_db_path': 'test_output/decision_history_adaptive.csv',
             'check_intervals': [5/60, 15/60, 30/60, 1, 2, 4, 8, 24],
             'update_interval': 300,
-            'report_interval': 1800,
-            'continuous_evaluation_interval': 300
+            'report_interval': 3600,
+            'expected_move_ranges': {
+                "1-2%": (1, 2),
+                "2-5%": (2, 5),
+                "5-10%": (5, 10),
+                "10%+": (10, 20)
+            }
         },
         'adaptive_learning': {
             'enabled': True,

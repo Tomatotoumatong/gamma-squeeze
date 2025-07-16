@@ -1,6 +1,6 @@
 """
-PerformanceTracker - 增强版信号表现跟踪模块
-支持连续决策监控和多维度绩效评价
+PerformanceTracker - Enhanced version with improved data handling
+Fixes data validation issues and preserves rich behavioral information
 """
 
 import pandas as pd
@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 import logging
 import json
 import os
+import math
 from collections import defaultdict, deque
 import asyncio
 from SignalEvaluator import TradingSignal
@@ -18,60 +19,74 @@ from SignalEvaluator import TradingSignal
 logger = logging.getLogger(__name__)
 
 @dataclass
-class DecisionSnapshot:
-    """决策快照 - 记录每个决策时刻的完整信息"""
-    timestamp: datetime
-    decision_type: str  # 'signal_generated', 'no_signal', 'signal_suppressed'
-    assets_analyzed: List[str]
-    
-    # 市场快照
-    market_snapshot: Dict[str, 'MarketSnapshot']
-    
-    # 决策因素
-    gamma_metrics: Dict[str, Any]
-    behavior_metrics: Dict[str, Any]
-    scores: Dict[str, float]
-    
-    # 决策结果
-    signal_generated: Optional['SignalPerformance'] = None
-    suppression_reason: Optional[str] = None
-    
-    # 反事实分析数据
-    counterfactual_data: Dict[str, Any] = field(default_factory=dict)
-
-@dataclass
-class MarketSnapshot:
-    """市场快照 - 记录决策时刻的市场状态"""
+class EnhancedMarketSnapshot:
+    """Enhanced market snapshot with validation and rich behavioral data"""
     asset: str
     timestamp: datetime
     
-    # 价格数据
+    # Validated price data
     price: float
     bid: float
     ask: float
     spread: float
     
-    # 微观结构
-    orderbook_depth: Dict[str, float]  # {'bid_depth_5': xx, 'ask_depth_5': xx}
+    # Microstructure
+    orderbook_depth: Dict[str, float]
     orderbook_imbalance: float
     recent_trades: List[Dict[str, Any]]
     
-    # 期权结构
-    gamma_distribution: Dict[str, float]
-    iv_surface: Dict[str, float]
-    put_call_skew: float
-    nearest_gamma_wall: Dict[str, Any]
+    # Rich behavioral data (NEW)
+    sweep_orders: List[Dict[str, Any]] = field(default_factory=list)
+    divergences: List[Dict[str, Any]] = field(default_factory=list)
+    cross_market_signals: List[Dict[str, Any]] = field(default_factory=list)
     
-    # 技术指标
-    trend_strength: float
-    support_levels: List[float]
-    resistance_levels: List[float]
-    momentum_indicators: Dict[str, float]
+    # Gamma structure
+    gamma_distribution: Dict[str, float] = field(default_factory=dict)
+    nearest_gamma_wall: Dict[str, Any] = field(default_factory=dict)
+    dealer_position: Dict[str, Any] = field(default_factory=dict)
     
-    # 市场状态
-    volatility_regime: str
-    liquidity_score: float
-    market_regime: str
+    # Market state
+    volatility_regime: str = 'normal'
+    liquidity_score: float = 0.5
+    market_regime: str = 'normal'
+    anomaly_score: float = 0.0
+    
+    def __post_init__(self):
+        """Validate data on creation"""
+        # Ensure valid prices
+        if self.price <= 0:
+            logger.warning(f"Invalid price {self.price}, setting to bid/ask midpoint")
+            self.price = (self.bid + self.ask) / 2 if self.bid > 0 and self.ask > 0 else 1.0
+            
+        # Ensure valid spread
+        if math.isnan(self.spread) or self.spread < 0:
+            self.spread = self.ask - self.bid if self.ask > self.bid else 0.0
+            
+        # Validate orderbook imbalance
+        if math.isnan(self.orderbook_imbalance):
+            self.orderbook_imbalance = 0.0
+
+@dataclass
+class DecisionSnapshot:
+    """Enhanced decision snapshot with rich behavioral context"""
+    timestamp: datetime
+    decision_type: str
+    assets_analyzed: List[str]
+    
+    # Enhanced market snapshots
+    market_snapshots: Dict[str, EnhancedMarketSnapshot]
+    
+    # Preserved behavioral details (NEW)
+    behavior_summary: Dict[str, Any]
+    
+    # Decision factors
+    gamma_metrics: Dict[str, Any]
+    scores: Dict[str, float]
+    
+    # Results
+    signal_generated: Optional['SignalPerformance'] = None
+    suppression_reason: Optional[str] = None
+    counterfactual_data: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class PricePathMetrics:
@@ -101,7 +116,7 @@ class SignalPerformance:
     time_horizon: str
     
     # 市场快照（信号发出时）
-    market_snapshot: MarketSnapshot
+    market_snapshot: EnhancedMarketSnapshot
     
     # 多时间尺度价格记录
     price_5m: Optional[float] = None
@@ -138,62 +153,591 @@ class SignalPerformance:
     evaluation_timestamp: Optional[datetime] = None
 
 class PerformanceTracker:
-    """增强版性能跟踪器"""
+    """Enhanced performance tracker with improved data handling"""
     
     def __init__(self, config: Optional[Dict] = None):
         self.config = config or self._default_config()
         
-        # 数据存储路径
+        # Data storage
         self.signal_db_path = self.config['signal_db_path']
         self.decision_db_path = self.config['decision_db_path']
         
-        # 活跃信号跟踪（保持兼容性）
+        # Active tracking
         self.active_signals: Dict[str, SignalPerformance] = {}
-        
-        # 决策历史
         self.decision_history: deque = deque(maxlen=10000)
-        self.market_snapshots: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
         
-        # 价格获取器
+        # Enhanced caches (NEW)
+        self.behavior_cache: Dict[str, deque] = defaultdict(lambda: deque(maxlen=100))
+        self.gamma_cache: Dict[str, deque] = defaultdict(lambda: deque(maxlen=100))
+        
+        # Data fetchers
         self.price_fetcher = None
         self.market_data_fetcher = None
         
-        # 统计缓存
-        self.performance_cache = {}
-        self.last_cache_update = datetime.utcnow()
-        
-        # 初始化
+        # Initialize
         self._ensure_db_exists()
         self._load_active_signals()
         
     def _default_config(self) -> Dict:
-        """默认配置"""
+        """Default configuration"""
         return {
             'signal_db_path': 'signal_performance_enhanced.csv',
             'decision_db_path': 'decision_history.csv',
-            'check_intervals': [5/60, 15/60, 30/60, 1, 2, 4, 8, 24],  # 小时
-            'decision_interval': 60,  # 决策记录间隔（秒）
-            'update_interval': 300,   # 价格更新间隔
-            'report_interval': 1800,  # 报告间隔
+            'check_intervals': [5/60, 15/60, 30/60, 1, 2, 4, 8, 24],
+            'update_interval': 300,
+            'report_interval': 1800,
             'expected_move_ranges': {
                 "1-2%": (1, 2),
                 "2-5%": (2, 5),
                 "5-10%": (5, 10),
                 "10%+": (10, 20)
-            },
-            'time_horizon_hours': {
-                "0-1h": 1,
-                "1-2h": 2,
-                "2-4h": 3,
-                "4-8h": 6,
-                "8-24h": 16
-            },
-            'market_snapshot_features': {
-                'orderbook_levels': 5,
-                'trade_history_size': 100,
-                'technical_indicators': ['rsi', 'macd', 'bb']
             }
         }
+    
+    async def capture_enhanced_market_snapshot(self, asset: str,
+                                             gamma_analysis: Dict[str, Any],
+                                             market_behavior: Dict[str, Any],
+                                             market_data: pd.DataFrame) -> Optional[EnhancedMarketSnapshot]:
+        """Capture enhanced market snapshot with validation and rich data"""
+        try:
+            # Get current market data
+            asset_data = market_data[market_data['symbol'] == asset]
+            if asset_data.empty:
+                return None
+                
+            # Extract latest spot data
+            spot_data = asset_data[asset_data['data_type'] == 'spot']
+            if spot_data.empty:
+                return None
+                
+            latest = spot_data.iloc[-1]
+            
+            # Extract orderbook data
+            ob_data = asset_data[asset_data['data_type'] == 'orderbook']
+            orderbook_info = self._extract_orderbook_info(ob_data)
+            
+            # Extract behavioral data (NEW - preserving rich information)
+            sweep_orders = self._extract_sweep_details(asset, market_behavior)
+            divergences = self._extract_divergence_details(asset, market_behavior)
+            cross_signals = self._extract_cross_market_details(asset, market_behavior)
+            
+            # Extract gamma structure
+            gamma_info = self._extract_enhanced_gamma_info(asset, gamma_analysis)
+            
+            # Get anomaly score
+            anomaly_scores = market_behavior.get('anomaly_scores', {})
+            anomaly_score = anomaly_scores.get(asset, 0.0)
+            
+            # Create enhanced snapshot
+            snapshot = EnhancedMarketSnapshot(
+                asset=asset,
+                timestamp=datetime.utcnow(),
+                price=float(latest.get('price', 0)),
+                bid=float(latest.get('bid', 0)),
+                ask=float(latest.get('ask', 0)),
+                spread=float(latest.get('ask', 0)) - float(latest.get('bid', 0)),
+                orderbook_depth=orderbook_info['depth'],
+                orderbook_imbalance=orderbook_info['imbalance'],
+                recent_trades=[],  # TODO: extract from market_data if available
+                sweep_orders=sweep_orders,
+                divergences=divergences,
+                cross_market_signals=cross_signals,
+                gamma_distribution=gamma_info['distribution'],
+                nearest_gamma_wall=gamma_info['nearest_wall'],
+                dealer_position=gamma_info['dealer_position'],
+                volatility_regime=self._determine_volatility_regime(asset_data),
+                liquidity_score=self._calculate_liquidity_score(asset_data),
+                market_regime=market_behavior.get('market_regime', {}).get('state', 'normal'),
+                anomaly_score=anomaly_score
+            )
+            
+            # Cache the enhanced data
+            self.behavior_cache[asset].append({
+                'timestamp': snapshot.timestamp,
+                'sweeps': sweep_orders,
+                'divergences': divergences,
+                'anomaly_score': anomaly_score
+            })
+            
+            self.gamma_cache[asset].append({
+                'timestamp': snapshot.timestamp,
+                'gamma_dist': gamma_info['distribution'],
+                'dealer_position': gamma_info['dealer_position']
+            })
+            
+            return snapshot
+            
+        except Exception as e:
+            logger.error(f"Error capturing enhanced snapshot for {asset}: {e}")
+            return None
+    
+    def _extract_sweep_details(self, asset: str, market_behavior: Dict) -> List[Dict[str, Any]]:
+        """Extract detailed sweep order information"""
+        all_sweeps = market_behavior.get('sweep_orders', [])
+        asset_sweeps = []
+        
+        for sweep in all_sweeps:
+            if hasattr(sweep, 'symbol') and sweep.symbol == asset:
+                asset_sweeps.append({
+                    'timestamp': sweep.timestamp,
+                    'side': sweep.side,
+                    'volume': sweep.volume,
+                    'price': sweep.price,
+                    'frequency': sweep.frequency,
+                    'anomaly_score': sweep.anomaly_score
+                })
+        
+        return asset_sweeps
+    
+    def _extract_divergence_details(self, asset: str, market_behavior: Dict) -> List[Dict[str, Any]]:
+        """Extract detailed divergence information"""
+        all_divergences = market_behavior.get('divergences', [])
+        asset_divergences = []
+        
+        for div in all_divergences:
+            if hasattr(div, 'symbol') and div.symbol == asset:
+                asset_divergences.append({
+                    'type': div.divergence_type,
+                    'strength': div.strength,
+                    'duration': div.duration,
+                    'details': div.details
+                })
+        
+        return asset_divergences
+    
+    def _extract_cross_market_details(self, asset: str, market_behavior: Dict) -> List[Dict[str, Any]]:
+        """Extract cross-market signal details"""
+        all_signals = market_behavior.get('cross_market_signals', [])
+        asset_signals = []
+        
+        for signal in all_signals:
+            if hasattr(signal, 'lead_market') and signal.lead_market == asset:
+                asset_signals.append({
+                    'role': 'lead',
+                    'lag_market': signal.lag_market,
+                    'correlation': signal.correlation,
+                    'lag_time': signal.lag_time,
+                    'signal_strength': signal.signal_strength
+                })
+            elif hasattr(signal, 'lag_market') and signal.lag_market == asset:
+                asset_signals.append({
+                    'role': 'lag',
+                    'lead_market': signal.lead_market,
+                    'correlation': signal.correlation,
+                    'lag_time': signal.lag_time,
+                    'signal_strength': signal.signal_strength
+                })
+        
+        return asset_signals
+    
+    def _extract_enhanced_gamma_info(self, asset: str, gamma_analysis: Dict) -> Dict[str, Any]:
+        """Extract enhanced gamma information"""
+        result = {
+            'distribution': {},
+            'nearest_wall': {},
+            'dealer_position': {}
+        }
+        
+        # Handle asset name mapping
+        symbol_map = {'BTCUSDT': 'BTC', 'ETHUSDT': 'ETH'}
+        gamma_symbol = symbol_map.get(asset, asset)
+        
+        # Gamma distribution
+        gamma_dist = gamma_analysis.get('gamma_distribution', {}).get(gamma_symbol, {})
+        if gamma_dist and 'profile' in gamma_dist:
+            for item in gamma_dist['profile']:
+                strike = item.get('strike')
+                if strike:
+                    result['distribution'][str(strike)] = item.get('gamma_exposure', 0)
+        
+        # Nearest gamma wall
+        walls = gamma_analysis.get('gamma_walls', {}).get(gamma_symbol, [])
+        if walls and hasattr(walls[0], 'strike'):
+            wall = walls[0]
+            result['nearest_wall'] = {
+                'strike': wall.strike,
+                'gamma_exposure': wall.gamma_exposure,
+                'distance_pct': wall.distance_pct,
+                'position': wall.position,
+                'strength': wall.strength
+            }
+        
+        # Dealer position
+        dealer_pos = gamma_analysis.get('dealer_position', {}).get(gamma_symbol, {})
+        if dealer_pos:
+            result['dealer_position'] = {
+                'net_delta': dealer_pos.get('net_delta', 0),
+                'net_gamma': dealer_pos.get('net_gamma', 0),
+                'position_score': dealer_pos.get('position_score', 0),
+                'flow_imbalance': dealer_pos.get('flow_imbalance', 0)
+            }
+        
+        return result
+    
+    def _extract_orderbook_info(self, ob_data: pd.DataFrame) -> Dict[str, Any]:
+        """Extract orderbook information with validation"""
+        result = {
+            'depth': {},
+            'imbalance': 0.0
+        }
+        
+        if ob_data.empty:
+            return result
+        
+        latest_ob = ob_data.iloc[-1]
+        
+        # Extract depth
+        bid_volume = latest_ob.get('bid_volume', 0)
+        ask_volume = latest_ob.get('ask_volume', 0)
+        
+        result['depth'] = {
+            'bid_volume': float(bid_volume) if not math.isnan(bid_volume) else 0.0,
+            'ask_volume': float(ask_volume) if not math.isnan(ask_volume) else 0.0
+        }
+        
+        # Calculate imbalance with validation
+        total_volume = result['depth']['bid_volume'] + result['depth']['ask_volume']
+        if total_volume > 0:
+            result['imbalance'] = (result['depth']['bid_volume'] - result['depth']['ask_volume']) / total_volume
+        
+        return result
+    
+    def _determine_volatility_regime(self, asset_data: pd.DataFrame) -> str:
+        """Determine volatility regime"""
+        if len(asset_data) < 20:
+            return 'normal'
+        
+        prices = asset_data[asset_data['data_type'] == 'spot']['price'].values
+        if len(prices) < 20:
+            return 'normal'
+        
+        returns = np.diff(prices) / prices[:-1]
+        volatility = np.std(returns)
+        
+        # Simple regime classification
+        if volatility < 0.01:
+            return 'low'
+        elif volatility > 0.03:
+            return 'high'
+        else:
+            return 'normal'
+    
+    def _calculate_liquidity_score(self, asset_data: pd.DataFrame) -> float:
+        """Calculate liquidity score"""
+        spot_data = asset_data[asset_data['data_type'] == 'spot']
+        if spot_data.empty:
+            return 0.5
+        
+        # Use volume and spread as liquidity indicators
+        volumes = spot_data['volume'].values
+        if len(volumes) == 0:
+            return 0.5
+        
+        # Normalize volume (simple approach)
+        avg_volume = np.mean(volumes)
+        recent_volume = volumes[-1] if len(volumes) > 0 else avg_volume
+        
+        volume_ratio = min(recent_volume / (avg_volume + 1e-8), 2.0)
+        
+        # Spread component
+        if 'bid' in spot_data.columns and 'ask' in spot_data.columns:
+            spreads = (spot_data['ask'] - spot_data['bid']) / spot_data['price']
+            avg_spread = spreads.mean()
+            spread_score = 1.0 / (1.0 + avg_spread * 100)  # Lower spread = higher score
+        else:
+            spread_score = 0.5
+        
+        # Combine scores
+        return (volume_ratio * 0.6 + spread_score * 0.4) / 2
+    
+    async def record_decision_enhanced(self, assets_analyzed: List[str],
+                                     gamma_analysis: Dict[str, Any],
+                                     market_behavior: Dict[str, Any],
+                                     market_data: pd.DataFrame,
+                                     scores: Dict[str, Dict[str, float]],
+                                     signals_generated: List[TradingSignal],
+                                     suppressed_signals: Dict[str, str]):
+        """Record decision with enhanced market context"""
+        timestamp = datetime.utcnow()
+        
+        # Capture enhanced market snapshots
+        market_snapshots = {}
+        for asset in assets_analyzed:
+            snapshot = await self.capture_enhanced_market_snapshot(
+                asset, gamma_analysis, market_behavior, market_data
+            )
+            if snapshot:
+                market_snapshots[asset] = snapshot
+        
+        # Create behavior summary preserving rich information
+        behavior_summary = {
+            'total_sweeps': len(market_behavior.get('sweep_orders', [])),
+            'sweep_breakdown': self._summarize_sweeps(market_behavior),
+            'divergence_types': self._summarize_divergences(market_behavior),
+            'cross_market_dynamics': self._summarize_cross_market(market_behavior),
+            'regime_confidence': market_behavior.get('market_regime', {}).get('confidence', 0)
+        }
+        
+        # Create enhanced decision snapshot
+        decision = DecisionSnapshot(
+            timestamp=timestamp,
+            decision_type='signal_generated' if signals_generated else 'no_signal',
+            assets_analyzed=assets_analyzed,
+            market_snapshots=market_snapshots,
+            behavior_summary=behavior_summary,
+            gamma_metrics=self._extract_gamma_metrics(gamma_analysis),
+            scores=scores,
+            suppression_reason=json.dumps(suppressed_signals) if suppressed_signals else None
+        )
+        
+        # Process signals
+        for signal in signals_generated:
+            if signal.asset in market_snapshots:
+                perf = self._create_signal_performance(signal, market_snapshots[signal.asset])
+                decision.signal_generated = perf
+                self.active_signals[perf.signal_id] = perf
+                self._save_signal(perf)
+        
+        # Generate counterfactual data
+        decision.counterfactual_data = await self._generate_enhanced_counterfactual_data(
+            assets_analyzed, market_snapshots, scores, behavior_summary
+        )
+        
+        # Save decision
+        self.decision_history.append(decision)
+        self._save_enhanced_decision(decision)
+    
+    def _summarize_sweeps(self, market_behavior: Dict) -> Dict[str, Any]:
+        """Summarize sweep orders preserving key information"""
+        sweeps = market_behavior.get('sweep_orders', [])
+        if not sweeps:
+            return {}
+        
+        buy_sweeps = [s for s in sweeps if hasattr(s, 'side') and s.side == 'buy']
+        sell_sweeps = [s for s in sweeps if hasattr(s, 'side') and s.side == 'sell']
+        
+        return {
+            'buy_count': len(buy_sweeps),
+            'sell_count': len(sell_sweeps),
+            'buy_volume': sum(s.volume for s in buy_sweeps),
+            'sell_volume': sum(s.volume for s in sell_sweeps),
+            'max_anomaly_score': max((s.anomaly_score for s in sweeps), default=0),
+            'avg_frequency': np.mean([s.frequency for s in sweeps]) if sweeps else 0
+        }
+    
+    def _summarize_divergences(self, market_behavior: Dict) -> Dict[str, int]:
+        """Summarize divergences by type"""
+        divergences = market_behavior.get('divergences', [])
+        type_counts = defaultdict(int)
+        
+        for div in divergences:
+            if hasattr(div, 'divergence_type'):
+                type_counts[div.divergence_type] += 1
+        
+        return dict(type_counts)
+    
+    def _summarize_cross_market(self, market_behavior: Dict) -> Dict[str, Any]:
+        """Summarize cross-market dynamics"""
+        signals = market_behavior.get('cross_market_signals', [])
+        if not signals:
+            return {}
+        
+        return {
+            'signal_count': len(signals),
+            'avg_correlation': np.mean([s.correlation for s in signals]),
+            'max_lag_time': max((s.lag_time for s in signals), default=0),
+            'lead_markets': list(set(s.lead_market for s in signals if hasattr(s, 'lead_market')))
+        }
+    
+    def track_signal_with_context(self, signal: TradingSignal, context: Dict[str, Any]):
+        """Track signal with enhanced context handling"""
+        # Validate context data
+        validated_context = {
+            'current_price': float(context.get('current_price', 0)),
+            'spread': float(context.get('spread', 0)) if not math.isnan(context.get('spread', 0)) else 0.0,
+            'ob_imbalance': float(context.get('ob_imbalance', 0)) if not math.isnan(context.get('ob_imbalance', 0)) else 0.0,
+            'parameter_version': context.get('parameter_version', 0),
+            'learning_active': context.get('learning_active', False)
+        }
+        
+        # Get cached behavioral data if available
+        behavior_data = {}
+        if signal.asset in self.behavior_cache and self.behavior_cache[signal.asset]:
+            recent_behavior = self.behavior_cache[signal.asset][-1]
+            behavior_data = {
+                'recent_sweeps': len(recent_behavior.get('sweeps', [])),
+                'sweep_intensity': np.mean([s['anomaly_score'] for s in recent_behavior.get('sweeps', [])]) if recent_behavior.get('sweeps') else 0,
+                'divergence_active': len(recent_behavior.get('divergences', [])) > 0,
+                'anomaly_score': recent_behavior.get('anomaly_score', 0)
+            }
+        
+        # Create simple snapshot for compatibility
+        market_snapshot = EnhancedMarketSnapshot(
+            asset=signal.asset,
+            timestamp=datetime.utcnow(),
+            price=validated_context['current_price'],
+            bid=validated_context['current_price'] - validated_context['spread']/2,
+            ask=validated_context['current_price'] + validated_context['spread']/2,
+            spread=validated_context['spread'],
+            orderbook_depth={},
+            orderbook_imbalance=validated_context['ob_imbalance'],
+            recent_trades=[],
+            gamma_distribution={},
+            iv_surface={},
+            put_call_skew=0,
+            nearest_gamma_wall={},
+            trend_strength=0,
+            support_levels=[],
+            resistance_levels=[],
+            momentum_indicators={},
+            volatility_regime='normal',
+            liquidity_score=0.5,
+            market_regime='normal'
+        )
+        
+        # Create performance record
+        perf = self._create_signal_performance(signal, market_snapshot)
+        
+        # Enhanced metadata
+        perf.metadata.update({
+            'market_context': validated_context,
+            'behavior_context': behavior_data,
+            'entry_conditions': {
+                'spread_bp': validated_context['spread'] / validated_context['current_price'] * 10000 if validated_context['current_price'] > 0 else 0,
+                'orderbook_imbalance': validated_context['ob_imbalance'],
+                'parameter_version': validated_context['parameter_version']
+            }
+        })
+        
+        # Save
+        self.active_signals[perf.signal_id] = perf
+        self._save_signal(perf)
+        
+        logger.info(f"Tracking signal {perf.signal_id} with validated context")
+    
+    async def _generate_enhanced_counterfactual_data(self, assets: List[str],
+                                                   snapshots: Dict[str, EnhancedMarketSnapshot],
+                                                   scores: Dict[str, Dict[str, float]],
+                                                   behavior_summary: Dict) -> Dict[str, Any]:
+        """Generate counterfactual analysis with behavioral context"""
+        counterfactual = {}
+        
+        for asset in assets:
+            if asset not in snapshots or asset not in scores:
+                continue
+            
+            snapshot = snapshots[asset]
+            asset_scores = scores[asset]
+            
+            # Calculate potential with behavioral factors
+            potential_strength = np.mean(list(asset_scores.values()))
+            
+            # Adjust for behavioral signals
+            behavior_boost = 0
+            if len(snapshot.sweep_orders) > 0:
+                behavior_boost += 0.1
+            if len(snapshot.divergences) > 0:
+                behavior_boost += 0.1
+            if snapshot.anomaly_score > 0.7:
+                behavior_boost += 0.1
+            
+            adjusted_strength = min(potential_strength + behavior_boost * 20, 100)
+            
+            # Estimate move based on regime and behavior
+            if snapshot.market_regime == 'squeeze' and len(snapshot.sweep_orders) > 2:
+                potential_move = adjusted_strength * 0.04  # 4% base for squeeze with sweeps
+            elif snapshot.market_regime == 'breakout':
+                potential_move = adjusted_strength * 0.05  # 5% for breakout
+            else:
+                potential_move = adjusted_strength * 0.02  # 2% normal
+            
+            counterfactual[asset] = {
+                'potential_signal_strength': adjusted_strength,
+                'expected_move_percent': potential_move * 100,
+                'market_favorability': self._assess_enhanced_market_favorability(snapshot),
+                'behavioral_support': behavior_boost,
+                'missed_opportunity_score': self._calculate_enhanced_missed_opportunity_score(
+                    adjusted_strength, snapshot, behavior_summary
+                )
+            }
+        
+        return counterfactual
+    
+    def _assess_enhanced_market_favorability(self, snapshot: EnhancedMarketSnapshot) -> float:
+        """Assess market favorability with behavioral factors"""
+        score = 0.5
+        
+        # Base factors
+        score += snapshot.liquidity_score * 0.2
+        
+        # Behavioral factors
+        if len(snapshot.sweep_orders) > 0:
+            score += 0.1
+        if snapshot.anomaly_score > 0.5:
+            score += snapshot.anomaly_score * 0.1
+        
+        # Gamma factors
+        if snapshot.nearest_gamma_wall and snapshot.nearest_gamma_wall.get('distance_pct', 100) < 2:
+            score += 0.1
+        
+        return min(score, 1.0)
+    
+    def _calculate_enhanced_missed_opportunity_score(self, potential_strength: float,
+                                                   snapshot: EnhancedMarketSnapshot,
+                                                   behavior_summary: Dict) -> float:
+        """Calculate missed opportunity with behavioral context"""
+        favorability = self._assess_enhanced_market_favorability(snapshot)
+        
+        # Strong signal with supportive behavior
+        if potential_strength > 70 and favorability > 0.7:
+            base_score = (potential_strength / 100) * favorability
+            
+            # Boost for strong behavioral signals
+            if behavior_summary.get('total_sweeps', 0) > 5:
+                base_score *= 1.2
+            
+            return min(base_score, 1.0)
+        
+        return 0.0
+    
+    def _save_enhanced_decision(self, decision: DecisionSnapshot):
+        """Save enhanced decision with behavioral data"""
+        try:
+            df = pd.read_csv(self.decision_db_path)
+            
+            # Prepare rich data for storage
+            behavior_json = json.dumps(decision.behavior_summary)
+            
+            # Extract key snapshot data for each asset
+            snapshot_summary = {}
+            for asset, snapshot in decision.market_snapshots.items():
+                snapshot_summary[asset] = {
+                    'price': snapshot.price,
+                    'spread': snapshot.spread,
+                    'liquidity_score': snapshot.liquidity_score,
+                    'anomaly_score': snapshot.anomaly_score,
+                    'sweep_count': len(snapshot.sweep_orders),
+                    'divergence_count': len(snapshot.divergences)
+                }
+            
+            data = {
+                'timestamp': decision.timestamp,
+                'decision_type': decision.decision_type,
+                'assets_analyzed': json.dumps(decision.assets_analyzed),
+                'signal_generated': decision.signal_generated.signal_id if decision.signal_generated else None,
+                'suppression_reason': decision.suppression_reason,
+                'gamma_metrics': json.dumps(decision.gamma_metrics),
+                'behavior_summary': behavior_json,  # Rich behavioral data
+                'scores': json.dumps(decision.scores),
+                'market_snapshot': json.dumps(snapshot_summary),
+                'counterfactual_data': json.dumps(decision.counterfactual_data)
+            }
+            
+            df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
+            df.to_csv(self.decision_db_path, index=False)
+            
+        except Exception as e:
+            logger.error(f"Error saving enhanced decision: {e}")
     
     def _ensure_db_exists(self):
         """确保数据库文件存在"""
@@ -236,7 +780,6 @@ class PerformanceTracker:
             active_df = df[df['evaluation_complete'] == False]
             
             for _, row in active_df.iterrows():
-                # 重建SignalPerformance对象（简化版，不包含完整市场快照）
                 perf = SignalPerformance(
                     signal_id=row['signal_id'],
                     signal_timestamp=pd.to_datetime(row['signal_timestamp']),
@@ -264,68 +807,14 @@ class PerformanceTracker:
                 
         except Exception as e:
             logger.error(f"Error loading active signals: {e}")
-    
-    async def record_decision(self, assets_analyzed: List[str], 
-                            gamma_analysis: Dict[str, Any],
-                            market_behavior: Dict[str, Any],
-                            scores: Dict[str, Dict[str, float]],
-                            signals_generated: List[TradingSignal],
-                            suppressed_signals: Dict[str, str]):
-        """记录决策时刻"""
-        timestamp = datetime.utcnow()
-        
-        # 获取市场快照
-        market_snapshots = {}
-        for asset in assets_analyzed:
-            snapshot = await self._capture_market_snapshot(asset, gamma_analysis, market_behavior)
-            if snapshot:
-                market_snapshots[asset] = snapshot
-                self.market_snapshots[asset].append(snapshot)
-        
-        # 构建决策快照
-        decision = DecisionSnapshot(
-            timestamp=timestamp,
-            decision_type='signal_generated' if signals_generated else 'no_signal',
-            assets_analyzed=assets_analyzed,
-            market_snapshot=market_snapshots,
-            gamma_metrics=self._extract_gamma_metrics(gamma_analysis),
-            behavior_metrics=self._extract_behavior_metrics(market_behavior),
-            scores=scores,
-            signal_generated=None,
-            suppression_reason=None
-        )
-        
-        # 处理生成的信号
-        if signals_generated:
-            for signal in signals_generated:
-                perf = self._create_signal_performance(signal, market_snapshots.get(signal.asset))
-                decision.signal_generated = perf
-                self.active_signals[perf.signal_id] = perf
-                self._save_signal(perf)
-        
-        # 记录被抑制的信号
-        if suppressed_signals:
-            decision.suppression_reason = json.dumps(suppressed_signals)
-        
-        # 添加反事实分析数据
-        decision.counterfactual_data = await self._generate_counterfactual_data(
-            assets_analyzed, market_snapshots, scores
-        )
-        
-        # 保存决策
-        self.decision_history.append(decision)
-        self._save_decision(decision)
+
     
     def track_signal(self, signal: TradingSignal, initial_price: float):
-        """跟踪新信号（保持向后兼容）"""
-        market_snapshot = self._get_latest_market_snapshot(signal.asset)
-        perf = self._create_signal_performance(signal, market_snapshot, initial_price)
-        self.active_signals[perf.signal_id] = perf
-        self._save_signal(perf)
-        logger.info(f"Started tracking signal {perf.signal_id}")
+        context = {'current_price': initial_price}
+        self.track_signal_with_context(signal, context)
     
-    def _create_signal_performance(self, signal: TradingSignal, 
-                                 market_snapshot: Optional[MarketSnapshot],
+    def _create_signal_performance(self, signal: TradingSignal,
+                                 market_snapshot: Optional[EnhancedMarketSnapshot],
                                  initial_price: Optional[float] = None) -> SignalPerformance:
         """创建信号性能记录"""
         signal_id = f"{signal.asset}_{signal.timestamp.strftime('%Y%m%d_%H%M%S')}"
@@ -374,10 +863,10 @@ class PerformanceTracker:
                     
                     if elapsed_hours >= hours and getattr(performance, price_key) is None:
                         setattr(performance, price_key, current_price)
-                        returns = ((current_price - performance.initial_price) / 
+                        returns = ((current_price - performance.initial_price) /
                                  performance.initial_price * 100)
                         setattr(performance, return_key, returns)
-#                        
+#
 #                        logger.info(f"Updated {interval_str} price for {signal_id}: "
 #                                  f"{current_price} ({returns:+.2f}%)")
                 
@@ -391,7 +880,7 @@ class PerformanceTracker:
             except Exception as e:
                 logger.error(f"Error updating prices for {signal_id}: {e}")
     
-    def _update_price_path_metrics(self, performance: SignalPerformance, 
+    def _update_price_path_metrics(self, performance: SignalPerformance,
                                   current_price: float, elapsed_hours: float):
         """更新价格路径指标"""
         if performance.path_metrics is None:
@@ -542,51 +1031,7 @@ class PerformanceTracker:
         
         return np.mean([volatility_score, drawdown_score, sharpe_score])
     
-    async def _capture_market_snapshot(self, asset: str, 
-                                     gamma_analysis: Dict[str, Any],
-                                     market_behavior: Dict[str, Any]) -> Optional[MarketSnapshot]:
-        """捕获市场快照"""
-        try:
-            # 获取当前市场数据
-            if self.market_data_fetcher:
-                market_data = await self.market_data_fetcher(asset)
-            else:
-                market_data = self._extract_market_data_from_analysis(asset, gamma_analysis, market_behavior)
-            
-            if not market_data:
-                return None
-            
-            # 构建市场快照
-            snapshot = MarketSnapshot(
-                asset=asset,
-                timestamp=datetime.utcnow(),
-                price=market_data.get('price', 0),
-                bid=market_data.get('bid', 0),
-                ask=market_data.get('ask', 0),
-                spread=market_data.get('ask', 0) - market_data.get('bid', 0),
-                orderbook_depth=market_data.get('orderbook_depth', {}),
-                orderbook_imbalance=market_data.get('orderbook_imbalance', 0),
-                recent_trades=market_data.get('recent_trades', []),
-                gamma_distribution=self._extract_gamma_distribution(asset, gamma_analysis),
-                iv_surface=market_data.get('iv_surface', {}),
-                put_call_skew=market_data.get('put_call_skew', 0),
-                nearest_gamma_wall=self._extract_nearest_gamma_wall(asset, gamma_analysis),
-                trend_strength=market_data.get('trend_strength', 0),
-                support_levels=market_data.get('support_levels', []),
-                resistance_levels=market_data.get('resistance_levels', []),
-                momentum_indicators=market_data.get('momentum_indicators', {}),
-                volatility_regime=market_data.get('volatility_regime', 'normal'),
-                liquidity_score=market_data.get('liquidity_score', 0.5),
-                market_regime=market_behavior.get('market_regime', {}).get('state', 'normal')
-            )
-            
-            return snapshot
-            
-        except Exception as e:
-            logger.error(f"Error capturing market snapshot for {asset}: {e}")
-            return None
-    
-    def _extract_market_data_from_analysis(self, asset: str, 
+    def _extract_market_data_from_analysis(self, asset: str,
                                          gamma_analysis: Dict[str, Any],
                                          market_behavior: Dict[str, Any]) -> Dict[str, Any]:
         """从分析结果中提取市场数据"""
@@ -685,7 +1130,7 @@ class PerformanceTracker:
         return metrics
     
     async def _generate_counterfactual_data(self, assets: List[str],
-                                          snapshots: Dict[str, MarketSnapshot],
+                                          snapshots: Dict[str,EnhancedMarketSnapshot],
                                           scores: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
         """生成反事实分析数据"""
         counterfactual = {}
@@ -720,7 +1165,7 @@ class PerformanceTracker:
         
         return counterfactual
     
-    def _assess_market_favorability(self, snapshot: MarketSnapshot) -> float:
+    def _assess_market_favorability(self, snapshot: EnhancedMarketSnapshot) -> float:
         """评估市场有利程度"""
         score = 0.5  # 基准分
         
@@ -737,7 +1182,7 @@ class PerformanceTracker:
         return min(score, 1.0)
     
     def _calculate_missed_opportunity_score(self, potential_strength: float,
-                                          snapshot: MarketSnapshot) -> float:
+                                          snapshot: EnhancedMarketSnapshot) -> float:
         """计算错失机会分数"""
         # 基于信号强度和市场有利程度
         favorability = self._assess_market_favorability(snapshot)
@@ -748,7 +1193,7 @@ class PerformanceTracker:
         
         return 0.0
     
-    def _get_latest_market_snapshot(self, asset: str) -> Optional[MarketSnapshot]:
+    def _get_latest_market_snapshot(self, asset: str) -> Optional[EnhancedMarketSnapshot]:
         """获取最新的市场快照"""
         if asset in self.market_snapshots and self.market_snapshots[asset]:
             return self.market_snapshots[asset][-1]
@@ -805,62 +1250,6 @@ class PerformanceTracker:
         
         df.to_csv(self.signal_db_path, index=False)
         
-    def track_signal_with_context(self, signal: TradingSignal, context: Dict[str, Any]):
-        """跟踪信号并记录完整市场上下文"""
-        # 获取或创建市场快照
-        market_snapshot = self._get_latest_market_snapshot(signal.asset)
-        
-        # 如果没有快照，从context创建简化版
-        if not market_snapshot:
-            market_snapshot = MarketSnapshot(
-                asset=signal.asset,
-                timestamp=datetime.utcnow(),
-                price=context.get('current_price', 0),
-                bid=context.get('current_price', 0) - context.get('spread', 0)/2,
-                ask=context.get('current_price', 0) + context.get('spread', 0)/2,
-                spread=context.get('spread', 0),
-                orderbook_depth={},
-                orderbook_imbalance=context.get('ob_imbalance', 0),
-                recent_trades=[],
-                gamma_distribution={},
-                iv_surface={},
-                put_call_skew=0,
-                nearest_gamma_wall={'distance_pct': context.get('nearest_strike_distance', 0)},
-                trend_strength=0,
-                support_levels=[],
-                resistance_levels=[],
-                momentum_indicators={},
-                volatility_regime='normal',
-                liquidity_score=0.5,
-                market_regime='normal'
-            )
-        
-        # 创建增强的信号性能记录
-        perf = self._create_signal_performance(signal, market_snapshot)
-        
-        # 添加上下文信息到metadata
-        perf.metadata.update({
-            'market_context': context,
-            'entry_conditions': {
-                'spread_bp': context.get('spread', 0) / context.get('current_price', 1) * 10000 if context.get('current_price') else 0,
-                'orderbook_imbalance': context.get('ob_imbalance', 0),
-                'gamma_concentration': context.get('gamma_concentration', 0),
-                'nearest_strike_distance_pct': context.get('nearest_strike_distance', 0),
-            },
-            'signal_details': {
-                'strategy': context.get('strategy', 'unknown'),
-                'confidence_breakdown': context.get('confidence_breakdown', {}),
-                'decision_latency_ms': context.get('decision_time', 0)
-            }
-        })
-        
-        # 保存信号
-        self.active_signals[perf.signal_id] = perf
-        self._save_signal(perf)
-        
-        logger.info(f"Tracking signal {perf.signal_id} with context: "
-                    f"spread={context.get('spread', 0):.2f}, "
-                    f"gamma_conc={context.get('gamma_concentration', 0):.2f}")
     def _save_decision(self, decision: DecisionSnapshot):
         """保存决策记录"""
         try:
@@ -946,7 +1335,7 @@ Path Metrics:
             'avg_timing_score': df['timing_score'].mean(),
             'avg_persistence_score': df['persistence_score'].mean(),
             'avg_robustness_score': df['robustness_score'].mean(),
-            'composite_score': df[['direction_score', 'timing_score', 
+            'composite_score': df[['direction_score', 'timing_score',
                                   'persistence_score', 'robustness_score']].mean().mean(),
             'by_signal_type': {},
             'by_asset': {},
@@ -962,7 +1351,7 @@ Path Metrics:
             stats['by_signal_type'][signal_type] = {
                 'count': len(type_df),
                 'avg_direction_score': type_df['direction_score'].mean(),
-                'avg_composite_score': type_df[['direction_score', 'timing_score', 
+                'avg_composite_score': type_df[['direction_score', 'timing_score',
                                               'persistence_score', 'robustness_score']].mean().mean()
             }
         
@@ -1064,9 +1453,9 @@ Path Metrics:
             
             if successful_metadata:
                 patterns['favorable_conditions'] = {
-                    'avg_sweep_count': np.mean([m.get('market_metrics', {}).get('sweep_count', 0) 
+                    'avg_sweep_count': np.mean([m.get('market_metrics', {}).get('sweep_count', 0)
                                                for m in successful_metadata]),
-                    'avg_anomaly_score': np.mean([m.get('market_metrics', {}).get('anomaly_score', 0) 
+                    'avg_anomaly_score': np.mean([m.get('market_metrics', {}).get('anomaly_score', 0)
                                                  for m in successful_metadata])
                 }
         
@@ -1102,8 +1491,8 @@ Path Metrics:
                 return {
                     'total_missed': len(missed_opportunities),
                     'avg_opportunity_score': np.mean([m['opportunity_score'] for m in missed_opportunities]),
-                    'top_missed_opportunities': sorted(missed_opportunities, 
-                                                     key=lambda x: x['opportunity_score'], 
+                    'top_missed_opportunities': sorted(missed_opportunities,
+                                                     key=lambda x: x['opportunity_score'],
                                                      reverse=True)[:5]
                 }
             

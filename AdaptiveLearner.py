@@ -221,7 +221,14 @@ class ConditionalParameterOptimizer:
         self.regime_parameters = defaultdict(dict)
         self.exploration_rate = defaultdict(lambda: 0.3)  # 提高初始探索率
         self.parameter_history = defaultdict(list)  # 参数历史
+        self.parameter_selection_count = defaultdict(int)  # Track selection frequency
+        self.last_selected_params = set()  # Track last selected parameters
         
+        self.integer_params = {
+            'market_behavior.divergence.min_duration': 1,  # min change = 1
+            'market_behavior.divergence.lookback_period': 2,  # min change = 2
+        }
+
     def optimize_for_regime(self,
                           regime: str,
                           gradients: Dict[str, ParameterGradient],
@@ -235,7 +242,7 @@ class ConditionalParameterOptimizer:
             return self._exploration_adjustments(regime, current_config)
         
         # 选择最敏感的参数进行优化
-        sensitive_params = self._select_sensitive_parameters(gradients, n=3)
+        sensitive_params = self._select_sensitive_parameters(gradients, n=4)
         
         for param in sensitive_params:
             gradient_info = gradients[param]
@@ -247,7 +254,7 @@ class ConditionalParameterOptimizer:
                 adjustments[param] = adjustment
                 
         return adjustments
-    def _select_sensitive_parameters(self, gradients: Dict[str, ParameterGradient], n: int = 3) -> List[str]:
+    def _select_sensitive_parameters(self, gradients: Dict[str, ParameterGradient], n: int = 4) -> List[str]:
         if not gradients:
             return []
         
@@ -272,54 +279,55 @@ class ConditionalParameterOptimizer:
             # 基础分数：梯度 * 置信度 * 敏感性
             base_score = gradient_magnitude * confidence * sensitivity
             
-            # 加入探索奖励，但权重较低，避免过度探索
-            exploration_weight = 0.2
-            final_score = base_score * (1 - exploration_weight) + exploration_bonus * exploration_weight
+            selection_penalty = 0
+            if param in self.last_selected_params:
+                selection_penalty = 0.3  # 30% penalty for consecutive selection
+            
+            # Bonus for rarely selected parameters
+            selection_count = self.parameter_selection_count[param]
+            diversity_bonus = 0.2 * max(0, 1 - selection_count / 10)
+            
+            final_score = base_score * (1 - selection_penalty) + diversity_bonus
             
             parameter_scores.append({
                 'param': param,
                 'score': final_score,
                 'gradient': gradient_info.gradient,
-                'confidence': confidence
+                'confidence': confidence,
+                'selection_count': selection_count
             })
         
-        # 按分数排序
+        # Sort by score
         parameter_scores.sort(key=lambda x: x['score'], reverse=True)
         
-        # 额外的筛选逻辑
+        # Select parameters ensuring diversity
         selected_params = []
-        
         for item in parameter_scores:
-            # 跳过置信度太低的参数（避免基于噪声调整）
+            # Skip if confidence too low
             if item['confidence'] < 0.2:
                 continue
                 
-            # 确保参数在允许的边界内
-            if item['param'] not in self.parameter_bounds:
-                continue
-                
-            selected_params.append(item['param'])
-            
-            if len(selected_params) >= n:
-                break
+            # Ensure at least one new parameter per cycle
+            if len(selected_params) < n:
+                selected_params.append(item['param'])
+                self.parameter_selection_count[item['param']] += 1
         
-        # 如果选中的参数太少，考虑添加一些探索性参数
+        # Update last selected set
+        self.last_selected_params = set(selected_params)
+        
+        # If we selected fewer than n params, add exploration candidates
         if len(selected_params) < n:
-            # 找出最近调整较少的参数
-            remaining_params = [p for p in gradients.keys()
-                              if p not in selected_params and p in self.parameter_bounds]
+            # Find least selected parameters
+            all_params = list(self.parameter_bounds.keys())
+            param_counts = [(p, self.parameter_selection_count[p]) for p in all_params
+                           if p not in selected_params]
+            param_counts.sort(key=lambda x: x[1])
             
-            # 按探索奖励排序
-            remaining_params.sort(
-                key=lambda p: gradients[p].exploration_bonus,
-                reverse=True
-            )
-            
-            # 补充参数
-            for param in remaining_params:
-                selected_params.append(param)
+            for param, _ in param_counts:
                 if len(selected_params) >= n:
                     break
+                selected_params.append(param)
+                self.parameter_selection_count[param] += 1
         
         return selected_params
         
@@ -399,6 +407,12 @@ class ConditionalParameterOptimizer:
         # 基础调整量
         base_adjustment = gradient_info.gradient * 0.1 * gradient_info.confidence
         
+        if param in self.integer_params:
+            min_change = self.integer_params[param]
+            if abs(base_adjustment) > 0.001:
+                direction = 1 if base_adjustment > 0 else -1
+                base_adjustment = direction * min_change
+        
         # 探索因子
         exploration = self._get_exploration_adjustment(param, regime)
         
@@ -409,9 +423,16 @@ class ConditionalParameterOptimizer:
         # 总调整量
         adjustment = base_adjustment + exploration
         
-        # 确保在边界内
         bounds = self.parameter_bounds.get(param, (0, 100))
         new_value = current_value + adjustment * (bounds[1] - bounds[0])
+        if param in self.integer_params:
+            new_value = round(new_value)
+            if abs(new_value - current_value) < self.integer_params[param]:
+                if adjustment > 0:
+                    new_value = current_value + self.integer_params[param]
+                elif adjustment < 0:
+                    new_value = current_value - self.integer_params[param]
+        
         new_value = np.clip(new_value, bounds[0], bounds[1])
         
         return new_value - current_value
@@ -465,8 +486,9 @@ class EnhancedAdaptiveLearner:
         # 冷启动控制
         self.bootstrap_phase = True
         self.bootstrap_cycles = 0
-        self.min_bootstrap_cycles = 3  # 至少进行3次强制探索
-        
+        self.min_bootstrap_cycles = 5
+            
+
     def _default_config(self) -> Dict:
         """默认配置"""
         return {
