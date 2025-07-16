@@ -377,9 +377,9 @@ class PerformanceTracker:
                         returns = ((current_price - performance.initial_price) / 
                                  performance.initial_price * 100)
                         setattr(performance, return_key, returns)
-                        
-                        logger.info(f"Updated {interval_str} price for {signal_id}: "
-                                  f"{current_price} ({returns:+.2f}%)")
+#                        
+#                        logger.info(f"Updated {interval_str} price for {signal_id}: "
+#                                  f"{current_price} ({returns:+.2f}%)")
                 
                 # 更新价格路径指标
                 self._update_price_path_metrics(performance, current_price, elapsed_hours)

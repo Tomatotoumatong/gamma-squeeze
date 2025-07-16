@@ -452,9 +452,12 @@ class SignalEvaluator:
         # 基于gamma墙位置
         gamma_dist = gamma_analysis.get('gamma_distribution', {}).get(asset, {})
         if gamma_dist:
-            walls = gamma_analysis.get('gamma_walls', [])
-            asset_walls = [w for w in walls if w.strike]  # 简化处理
-            
+            walls_dict = gamma_analysis.get('gamma_walls', {})
+            # 处理资产名称映射
+            symbol_map = {'BTCUSDT': 'BTC', 'ETHUSDT': 'ETH'}
+            mapped_symbol = symbol_map.get(asset, asset)
+            walls = walls_dict.get(mapped_symbol, [])
+            asset_walls = walls 
             if asset_walls:
                 # 获取当前价格
                 asset_data = market_data[market_data['symbol'] == asset]
@@ -553,7 +556,11 @@ class SignalEvaluator:
         key_levels = []
         
         # 1. Gamma墙位置
-        walls = gamma_analysis.get('gamma_walls', [])
+        all_walls = gamma_analysis.get('gamma_walls', {})
+        # 需要处理asset到symbol的映射
+        symbol_map = {'BTCUSDT': 'BTC', 'ETHUSDT': 'ETH'}
+        mapped_symbol = symbol_map.get(asset, asset)
+        walls = all_walls.get(mapped_symbol, [])
         for wall in walls:
             if hasattr(wall, 'strike'):
                 key_levels.append(wall.strike)
