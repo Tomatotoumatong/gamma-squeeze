@@ -20,7 +20,7 @@ from enum import Enum
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
+proxy_url = "http://127.0.0.1:7890"
 # 数据类型枚举
 class DataType(Enum):
     OPTION = "option"
@@ -90,7 +90,10 @@ class DataSource(ABC):
     async def request_with_retry(self, method: str, url: str, 
                                  max_retries: int = 3, **kwargs) -> Optional[Any]:
         """带重试机制的HTTP请求"""
-        
+        # 添加代理
+        if hasattr(self, 'proxy_url'):
+            kwargs['proxy'] = proxy_url
+            
         for attempt in range(max_retries):
             try:
                 await self.ensure_session()  # 确保session有效
@@ -126,6 +129,7 @@ class DeribitSource(DataSource):
     def __init__(self, symbols: List[str] = ["BTC", "ETH"]):
         super().__init__("deribit", symbols)
         self.base_url = "https://www.deribit.com/api/v2/public"
+        self.proxy_url = proxy_url 
         
     async def fetch(self) -> List[DataPoint]:
         """获取期权数据"""
@@ -259,7 +263,7 @@ class DeribitSource(DataSource):
         params = {'index_name': f'{currency.lower()}_usd'}
         
         try:
-            async with self.session.get(url, params=params) as resp:
+            async with self.session.get(url, proxy=proxy_url, params=params) as resp:
                 data = await resp.json()
                 return data.get('result', {}).get('index_price')
         except Exception as e:
@@ -281,6 +285,7 @@ class BinanceSource(DataSource):
     def __init__(self, symbols: List[str] = ["BTCUSDT", "ETHUSDT"]):
         super().__init__("binance", symbols)
         self.base_url = "https://api.binance.com/api/v3"
+        self.proxy_url = proxy_url
         
     async def fetch(self) -> List[DataPoint]:
         """获取现货数据"""

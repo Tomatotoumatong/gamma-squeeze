@@ -76,7 +76,7 @@ class GammaSqueezeSystem:
             'market_behavior': {
                 'interval': 30,  # 30秒检测一次
                 'order_flow': {
-                    'sweep_threshold': 2.5,
+                    'sweep_threshold': 3.0,
                     'frequency_window': 60
                 },
                 'divergence': {
@@ -464,12 +464,14 @@ async def main():
         'market_behavior': {
             'interval': 30,
             'order_flow': {
-                'sweep_threshold': 2.5, 
+                'sweep_threshold': 3.0, 
                 'frequency_window': 60
             },
             'divergence': {
                 'lookback_period': 20,
-                'min_duration': 2
+                'min_duration': 2,
+                'significance_level': 0.001
+
             },
             'cross_market': {  # 添加缺失的配置
                 'correlation_threshold': 0.7,  # 相关性阈值
