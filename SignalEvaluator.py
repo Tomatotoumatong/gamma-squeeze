@@ -125,7 +125,7 @@ class SignalEvaluator:
             'technical': TechnicalConfirmationScorer(self.config['technical'])
         }
     
-    def update_parameters(self, parameter_updates: Dict[str, Any], 
+    def update_parameters(self, parameter_updates: Dict[str, Any],
                          reason: str = "Manual update") -> bool:
         """
         动态更新参数
@@ -283,7 +283,7 @@ class SignalEvaluator:
             value = value[key]
         return value
     
-    def evaluate(self, gamma_analysis: Dict[str, Any], 
+    def evaluate(self, gamma_analysis: Dict[str, Any],
                 market_behavior: Dict[str, Any],
                 market_data: pd.DataFrame) -> List[TradingSignal]:
         """主评估方法"""
@@ -368,12 +368,17 @@ class SignalEvaluator:
     
     def _check_cooldown(self, asset: str) -> bool:
         """检查冷却期"""
+        cooldown = self.config['signal_generation']['signal_cooldown']
+        
+        # 如果冷却期设为0，直接返回True
+        if cooldown == 0:
+            return True
+            
         if asset not in self.signal_history:
             return True
             
         if not self.signal_history[asset]:
             return True
-            
         last_signal = self.signal_history[asset][-1]
         cooldown = self.config['signal_generation']['signal_cooldown']
         
@@ -457,7 +462,7 @@ class SignalEvaluator:
             symbol_map = {'BTCUSDT': 'BTC', 'ETHUSDT': 'ETH'}
             mapped_symbol = symbol_map.get(asset, asset)
             walls = walls_dict.get(mapped_symbol, [])
-            asset_walls = walls 
+            asset_walls = walls
             if asset_walls:
                 # 获取当前价格
                 asset_data = market_data[market_data['symbol'] == asset]
@@ -905,7 +910,7 @@ class MarketMomentumScorer:
     def __init__(self, config: Dict):
         self.config = config
         
-    def calculate(self, asset: str, market_behavior: Dict, 
+    def calculate(self, asset: str, market_behavior: Dict,
                  market_data: pd.DataFrame) -> float:
         """计算市场动量分数"""
         score_components = []
@@ -986,7 +991,7 @@ class TechnicalConfirmationScorer:
     def calculate(self, asset: str, market_data: pd.DataFrame) -> float:
         """计算技术面确认分数"""
         asset_data = market_data[
-            (market_data['symbol'] == asset) & 
+            (market_data['symbol'] == asset) &
             (market_data['data_type'] == 'spot')
         ]
         if asset_data.empty or len(asset_data) < 20:

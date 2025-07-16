@@ -70,7 +70,7 @@ class AdaptiveGammaSqueezeSystem:
         
         # Define parameter data types
         self.integer_params = {
-            'market_behavior.divergence.min_duration',
+            'market_behavior.divergence.significance_level',
             'market_behavior.divergence.lookback_period'
         }
         
@@ -138,7 +138,7 @@ class AdaptiveGammaSqueezeSystem:
         await asyncio.gather(*tasks, return_exceptions=True)
         
     async def _continuous_decision_loop(self):
-        """Continuously evaluate decisions every 5 minutes"""
+        """Continuously evaluate decisions every 2 minutes"""
         while self.running:
             try:
                 await asyncio.sleep(self.config['adaptive_learning']['continuous_decision_interval'])
@@ -871,14 +871,14 @@ async def main():
             'export_interval': 300
         },
         'gamma_analysis': {
-            'interval': 60,
+            'interval': 30,
             'wall_percentile': 90,
-            'history_window': 100,
+            'history_window': 150,
             'gamma_decay_factor': 0.95,
             'hedge_flow_threshold': 0.7,
         },
         'market_behavior': {
-            'interval': 30,
+            'interval': 15,
             'order_flow': {
                 'sweep_threshold': 2.5,
                 'frequency_window': 60
@@ -891,7 +891,7 @@ async def main():
             'cross_market': {
                 'correlation_threshold': 0.7,
                 'max_lag': 300,
-                'min_observations': 100
+                'min_observations': 60
             },
             'learning_params': {
                 'enable_ml': True,
@@ -899,10 +899,10 @@ async def main():
             }
         },
         'signal_generation': {
-            'interval': 60,
+            'interval': 15,
             'min_strength': 60,
             'min_confidence': 0.6,
-            'signal_cooldown': 300
+            'signal_cooldown': 0
         },
         'performance_tracking': {
             'signal_db_path': 'test_output/signal_performance_adaptive.csv',
@@ -920,14 +920,14 @@ async def main():
         'adaptive_learning': {
             'enabled': True,
             'learning_rate': 0.1,
-            'bootstrap_decisions_threshold': 5,
-            'learning_interval': 1200,
-            'min_decisions_for_learning': 10,
-            'continuous_decision_interval': 300,  # 5 minutes
+            'bootstrap_decisions_threshold': 10,
+            'learning_interval': 900,
+            'min_decisions_for_learning': 20,
+            'continuous_decision_interval': 120,  # 2 minutes
             'parameter_bounds': {
                 'market_behavior.order_flow.sweep_threshold': (2.0, 4.0),
-                'market_behavior.divergence.min_duration': (2, 10),
-                'market_behavior.divergence.lookback_period': (10, 30),
+                'market_behavior.divergence.significance_level': (0.0005, 0.005),
+                'market_behavior.divergence.lookback_period': (10, 45),
                 'gamma_analysis.wall_percentile': (70, 95),
                 'gamma_analysis.hedge_flow_threshold': (0.5, 0.9),
                 'signal_generation.min_strength': (40, 70),

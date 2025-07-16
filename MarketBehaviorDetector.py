@@ -64,7 +64,7 @@ class MarketBehaviorDetector:
             },
             'divergence': {
                 'lookback_period': 20,  # 回看周期
-                'significance_level': 0.05,  # 显著性水平
+                'significance_level': 0.001,  # 显著性水平
                 'min_duration': 3  # 最小持续周期
             },
             'cross_market': {
@@ -514,7 +514,7 @@ class DivergenceDetector:
         # 检测背离条件
         divergence_type = None
         
-        if abs(price_trend['slope']) > 0.001:
+        if abs(price_trend['slope']) > self.config['significance_level']:
             if price_trend['slope'] > 0 and volume_trend['slope'] < 0:
                 divergence_type = 'pv_bullish'  # 价涨量缩，可能见顶
             elif price_trend['slope'] < 0 and volume_trend['slope'] > 0:

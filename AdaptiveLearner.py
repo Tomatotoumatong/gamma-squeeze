@@ -54,7 +54,7 @@ class GradientAwareLearner:
         # 关注的参数列表
         adjustable_params = [
             'market_behavior.order_flow.sweep_threshold',
-            'market_behavior.divergence.min_duration',
+            'market_behavior.divergence.significance_level',
             'market_behavior.divergence.lookback_period',
             'gamma_analysis.wall_percentile',
             'gamma_analysis.hedge_flow_threshold',
@@ -225,8 +225,7 @@ class ConditionalParameterOptimizer:
         self.last_selected_params = set()  # Track last selected parameters
         
         self.integer_params = {
-            'market_behavior.divergence.min_duration': 1,  # min change = 1
-            'market_behavior.divergence.lookback_period': 2,  # min change = 2
+            'market_behavior.divergence.lookback_period': 1, 
         }
 
     def optimize_for_regime(self,
@@ -409,7 +408,7 @@ class ConditionalParameterOptimizer:
         
         if param in self.integer_params:
             min_change = self.integer_params[param]
-            if abs(base_adjustment) > 0.001:
+            if abs(base_adjustment) != 0:
                 direction = 1 if base_adjustment > 0 else -1
                 base_adjustment = direction * min_change
         
@@ -497,7 +496,7 @@ class EnhancedAdaptiveLearner:
             'bootstrap_decisions_threshold': 10,  # 冷启动阶段的决策阈值
             'parameter_bounds': {
                 'market_behavior.order_flow.sweep_threshold': (2.0, 4.0),
-                'market_behavior.divergence.min_duration': (2, 10),
+                'market_behavior.divergence.significance_level': (0.0005, 0.005),
                 'market_behavior.divergence.lookback_period': (10, 30),
                 'gamma_analysis.wall_percentile': (70, 95),
                 'gamma_analysis.hedge_flow_threshold': (0.5, 0.9),
