@@ -10,7 +10,7 @@ import asyncio
 import logging
 import sys
 import signal
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pandas as pd
 import numpy as np
 from typing import Optional, Dict, List, Any
@@ -76,7 +76,7 @@ class GammaSqueezeSystem:
             'market_behavior': {
                 'interval': 30,  # 30秒检测一次
                 'order_flow': {
-                    'sweep_threshold': 3.0,
+                    'sweep_threshold': 2.5,
                     'frequency_window': 60
                 },
                 'divergence': {
@@ -179,7 +179,7 @@ class GammaSqueezeSystem:
                                         if (datetime.utcnow() - s.timestamp).seconds < 300]
                         status_line += f"Signals(5m): {len(recent_signals)}"
                     
-                    print(f"\r{status_line}", end='', flush=True)
+                    logger.info(f"\r{status_line}")
                     
             except Exception as e:
                 logger.error(f"Error in monitor loop: {e}")
@@ -295,98 +295,100 @@ class GammaSqueezeSystem:
         
     def _print_behavior_detection_debug(self, result: Dict[str, Any]):
         """打印市场行为检测调试信息"""
-        print(f"\n\n{Fore.YELLOW}📈 MARKET BEHAVIOR DETECTION:{Style.RESET_ALL}")
-        print("─" * 60)
+        logger.info(f"\n\n{Fore.YELLOW}📈 MARKET BEHAVIOR DETECTION:{Style.RESET_ALL}")
+        logger.info("─" * 60)
         
         # 1. 扫单检测
         sweeps = result.get('sweep_orders', [])
         if sweeps:
-            print(f"\n{Fore.GREEN}Sweep Orders Detected:{Style.RESET_ALL}")
+            logger.info(f"\n{Fore.GREEN}Sweep Orders Detected:{Style.RESET_ALL}")
             for sweep in sweeps: 
-                print(f"  {sweep.symbol}: {sweep.side.upper()} sweep")
-                print(f"    Volume: {sweep.volume:.0f} | Anomaly: {sweep.anomaly_score:.2f}")
-                print(f"    Frequency: {sweep.frequency:.1f}/min")
+                logger.info(f"  {sweep.symbol}: {sweep.side.upper()} sweep")
+                logger.info(f"    Volume: {sweep.volume:.0f} | Anomaly: {sweep.anomaly_score:.2f}")
+                logger.info(f"    Frequency: {sweep.frequency:.1f}/min")
         
         # 2. 背离检测
         divergences = result.get('divergences', [])
         if divergences:
-            print(f"\n{Fore.MAGENTA}Divergences Detected:{Style.RESET_ALL}")
+            logger.info(f"\n{Fore.MAGENTA}Divergences Detected:{Style.RESET_ALL}")
             for div in divergences:
-                print(f"  {div.symbol}: {div.divergence_type}")
-                print(f"    Strength: {div.strength:.2f} | Duration: {div.duration}")
+                logger.info(f"  {div.symbol}: {div.divergence_type}")
+                logger.info(f"    Strength: {div.strength:.2f} | Duration: {div.duration}")
         
         # 3. 跨市场信号
         cross_signals = result.get('cross_market_signals', [])
         if cross_signals:
-            print(f"\n{Fore.BLUE}Cross-Market Signals:{Style.RESET_ALL}")
+            logger.info(f"\n{Fore.BLUE}Cross-Market Signals:{Style.RESET_ALL}")
             for signal in cross_signals:
-                print(f"  {signal.lead_market} → {signal.lag_market}")
-                print(f"    Correlation: {signal.correlation:.2f} | Lag: {signal.lag_time:.0f}s")
+                logger.info(f"  {signal.lead_market} → {signal.lag_market}")
+                logger.info(f"    Correlation: {signal.correlation:.2f} | Lag: {signal.lag_time:.0f}s")
         
         # 4. 市场状态
         regime = result.get('market_regime', {})
         if regime:
-            print(f"\n{Fore.CYAN}Market Regime:{Style.RESET_ALL}")
-            print(f"  State: {regime.get('state', 'unknown').upper()}")
-            print(f"  Confidence: {regime.get('confidence', 0):.1%}")
+            logger.info(f"\n{Fore.CYAN}Market Regime:{Style.RESET_ALL}")
+            logger.info(f"  State: {regime.get('state', 'unknown').upper()}")
+            logger.info(f"  Confidence: {regime.get('confidence', 0):.1%}")
         
-        print("─" * 60)
+        logger.info("─" * 60)
         
     def _print_signal(self, signal: TradingSignal):
         """打印生成的信号"""
-        print(f"\n\n{'='*80}")
-        print(f"{Fore.RED}🚨 TRADING SIGNAL GENERATED 🚨{Style.RESET_ALL}")
-        print(f"{'='*80}")
+        logger.info(f"\n\n{'='*80}")
+        now=(datetime.now(timezone(timedelta(hours=8))))
+        logger.info(now.strftime('%Y-%m-%d %H:%M:%S'))
+        logger.info(f"{Fore.RED}🚨 TRADING SIGNAL GENERATED 🚨{Style.RESET_ALL}")
+        logger.info(f"{'='*80}")
         
-        print(f"\n{Fore.YELLOW}Asset:{Style.RESET_ALL} {signal.asset}")
-        print(f"{Fore.YELLOW}Type:{Style.RESET_ALL} {signal.signal_type}")
-        print(f"{Fore.YELLOW}Direction:{Style.RESET_ALL} ", end='')
+        logger.info(f"\n{Fore.YELLOW}Asset:{Style.RESET_ALL} {signal.asset}")
+        logger.info(f"{Fore.YELLOW}Type:{Style.RESET_ALL} {signal.signal_type}")
+        logger.info(f"{Fore.YELLOW}Direction:{Style.RESET_ALL} ")
         
         if signal.direction == 'BULLISH':
-            print(f"{Fore.GREEN}{signal.direction} ↑{Style.RESET_ALL}")
+            logger.info(f"{Fore.GREEN}{signal.direction} ↑{Style.RESET_ALL}")
         else:
-            print(f"{Fore.RED}{signal.direction} ↓{Style.RESET_ALL}")
+            logger.info(f"{Fore.RED}{signal.direction} ↓{Style.RESET_ALL}")
         
-        print(f"\n{Fore.CYAN}Signal Metrics:{Style.RESET_ALL}")
-        print(f"  Strength: {signal.strength}/100")
-        print(f"  Confidence: {signal.confidence:.1%}")
-        print(f"  Expected Move: {signal.expected_move}")
-        print(f"  Time Horizon: {signal.time_horizon}")
+        logger.info(f"\n{Fore.CYAN}Signal Metrics:{Style.RESET_ALL}")
+        logger.info(f"  Strength: {signal.strength}/100")
+        logger.info(f"  Confidence: {signal.confidence:.1%}")
+        logger.info(f"  Expected Move: {signal.expected_move}")
+        logger.info(f"  Time Horizon: {signal.time_horizon}")
         
         if signal.key_levels:
-            print(f"\n{Fore.MAGENTA}Key Levels:{Style.RESET_ALL}")
+            logger.info(f"\n{Fore.MAGENTA}Key Levels:{Style.RESET_ALL}")
             for level in signal.key_levels[:3]:
-                print(f"  - ${level:,.0f}")
+                logger.info(f"  - ${level:,.0f}")
         
         if signal.risk_factors:
-            print(f"\n{Fore.RED}Risk Factors:{Style.RESET_ALL}")
+            logger.info(f"\n{Fore.RED}Risk Factors:{Style.RESET_ALL}")
             for risk in signal.risk_factors:
-                print(f"  ⚠️  {risk}")
+                logger.info(f"  ⚠️  {risk}")
         
         # 元数据
         metadata = signal.metadata
-        print(f"\n{Fore.BLUE}Technical Details:{Style.RESET_ALL}")
+        logger.info(f"\n{Fore.BLUE}Technical Details:{Style.RESET_ALL}")
         
         scores = metadata.get('scores', {})
-        print("  Component Scores:")
-        print(f"    Gamma Pressure: {scores.get('gamma_pressure', 0):.1f}")
-        print(f"    Market Momentum: {scores.get('market_momentum', 0):.1f}")
-        print(f"    Technical: {scores.get('technical', 0):.1f}")
+        logger.info("  Component Scores:")
+        logger.info(f"    Gamma Pressure: {scores.get('gamma_pressure', 0):.1f}")
+        logger.info(f"    Market Momentum: {scores.get('market_momentum', 0):.1f}")
+        logger.info(f"    Technical: {scores.get('technical', 0):.1f}")
         
         gamma_metrics = metadata.get('gamma_metrics', {})
         if gamma_metrics:
-            print("  Gamma Metrics:")
-            print(f"    Total Exposure: {gamma_metrics.get('total_gamma_exposure', 0):.2e}")
-            print(f"    Dealer Position: {gamma_metrics.get('dealer_position_score', 0):.2f}")
+            logger.info("  Gamma Metrics:")
+            logger.info(f"    Total Exposure: {gamma_metrics.get('total_gamma_exposure', 0):.2e}")
+            logger.info(f"    Dealer Position: {gamma_metrics.get('dealer_position_score', 0):.2f}")
         
         market_metrics = metadata.get('market_metrics', {})
         if market_metrics:
-            print("  Market Metrics:")
-            print(f"    Sweep Count: {market_metrics.get('sweep_count', 0)}")
-            print(f"    Anomaly Score: {market_metrics.get('anomaly_score', 0):.2f}")
+            logger.info("  Market Metrics:")
+            logger.info(f"    Sweep Count: {market_metrics.get('sweep_count', 0)}")
+            logger.info(f"    Anomaly Score: {market_metrics.get('anomaly_score', 0):.2f}")
         
-        print(f"\n{Fore.GREEN}Generated at: {signal.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}{Style.RESET_ALL}")
-        print('='*80)
+        logger.info(f"\n{Fore.GREEN}Generated at: {signal.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}{Style.RESET_ALL}")
+        logger.info('='*80)
         
     async def shutdown(self):
         """关闭系统"""
@@ -464,14 +466,12 @@ async def main():
         'market_behavior': {
             'interval': 30,
             'order_flow': {
-                'sweep_threshold': 3.0, 
+                'sweep_threshold': 2.5, 
                 'frequency_window': 60
             },
             'divergence': {
                 'lookback_period': 20,
-                'min_duration': 2,
-                'significance_level': 0.001
-
+                'min_duration': 2
             },
             'cross_market': {  # 添加缺失的配置
                 'correlation_threshold': 0.7,  # 相关性阈值
@@ -510,13 +510,13 @@ async def main():
         await system.shutdown()
 
 if __name__ == "__main__":
-    print(f"{Fore.GREEN}🚀 Gamma Squeeze Signal System{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   Phase 1: Data Collection ✓{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}   Phase 2: Pattern Recognition ✓{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}   Phase 3: Signal Generation (Active){Style.RESET_ALL}")
-    print("=" * 80)
-    print("Press Ctrl+C to stop the system")
-    print("=" * 80)
+    logger.info(f"{Fore.GREEN}🚀 Gamma Squeeze Signal System{Style.RESET_ALL}")
+    logger.info(f"{Fore.YELLOW}   Phase 1: Data Collection ✓{Style.RESET_ALL}")
+    logger.info(f"{Fore.YELLOW}   Phase 2: Pattern Recognition ✓{Style.RESET_ALL}")
+    logger.info(f"{Fore.CYAN}   Phase 3: Signal Generation (Active){Style.RESET_ALL}")
+    logger.info("=" * 80)
+    logger.info("Press Ctrl+C to stop the system")
+    logger.info("=" * 80)
     
     # 运行主程序
     asyncio.run(main())

@@ -1,0 +1,1387 @@
+INFO:__main__:[32m🚀 Gamma Squeeze Signal System[0m
+INFO:__main__:[33m   Phase 1: Data Collection ✓[0m
+INFO:__main__:[33m   Phase 2: Pattern Recognition ✓[0m
+INFO:__main__:[36m   Phase 3: Signal Generation (Active)[0m
+INFO:__main__:================================================================================
+INFO:__main__:Press Ctrl+C to stop the system
+INFO:__main__:================================================================================
+INFO:__main__:================================================================================
+INFO:__main__:🚀 Initializing Gamma Squeeze Signal System
+INFO:__main__:   Phase 1: Data Collection ✓
+INFO:__main__:   Phase 2: Pattern Recognition ✓
+INFO:__main__:   Phase 3: Signal Generation (Active)
+INFO:__main__:================================================================================
+INFO:__main__:✅ All system components initialized successfully
+INFO:__main__:
+📊 Starting system...
+INFO:UnifiedDataCollector:Starting UnifiedDataCollector...
+INFO:__main__:⏳ Waiting for initial data accumulation (15 seconds)...
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 3 | Anomaly: 0.62
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 3 | Anomaly: 0.81
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 4 | Anomaly: 0.80
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 4 | Anomaly: 0.77
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 3 | Anomaly: 0.52
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 4 | Anomaly: 0.62
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 4 | Anomaly: 0.69
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 12 | Anomaly: 1.00
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 10 | Anomaly: 1.00
+INFO:__main__:    Frequency: 9.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 12 | Anomaly: 1.00
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.78
+INFO:__main__:    Frequency: 11.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.70
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.64
+INFO:__main__:    Frequency: 13.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 177 | Anomaly: 0.55
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 188 | Anomaly: 0.54
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 12 | Anomaly: 0.62
+INFO:__main__:    Frequency: 14.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 12 | Anomaly: 0.59
+INFO:__main__:    Frequency: 15.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.83 | Lag: 7s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 12 | Anomaly: 0.53
+INFO:__main__:    Frequency: 16.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 12 | Anomaly: 0.52
+INFO:__main__:    Frequency: 17.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.75 | Lag: 9s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 12 | Anomaly: 0.51
+INFO:__main__:    Frequency: 18.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 12 | Anomaly: 0.51
+INFO:__main__:    Frequency: 19.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.56
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.73 | Lag: 12s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.51
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 230 | Anomaly: 0.51
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.71 | Lag: 15s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 230 | Anomaly: 0.53
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 230 | Anomaly: 0.54
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 230 | Anomaly: 0.55
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.50
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 213 | Anomaly: 0.50
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 214 | Anomaly: 0.52
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.66
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.51
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  ETHUSDT → BTCUSDT
+INFO:__main__:    Correlation: 0.72 | Lag: 2s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.56
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 214 | Anomaly: 0.52
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.66
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.52
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.67
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  ETHUSDT → BTCUSDT
+INFO:__main__:    Correlation: 0.78 | Lag: 0s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.52
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.59
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 214 | Anomaly: 0.55
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.65
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 200 | Anomaly: 0.50
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.54
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.66
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.83 | Lag: 2s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.54
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.63
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 214 | Anomaly: 0.57
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.65
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 200 | Anomaly: 0.52
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.55
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.67
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  ETHUSDT → BTCUSDT
+INFO:__main__:    Correlation: 0.90 | Lag: 0s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.55
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.68
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 214 | Anomaly: 0.59
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.65
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 200 | Anomaly: 0.53
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.57
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.66
+INFO:__main__:    Frequency: 9.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.72
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  ETHUSDT → BTCUSDT
+INFO:__main__:    Correlation: 0.93 | Lag: 1s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.73
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 214 | Anomaly: 0.60
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.64
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 200 | Anomaly: 0.54
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.58
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.65
+INFO:__main__:    Frequency: 11.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 184 | Anomaly: 0.51
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.75
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.95 | Lag: 5s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 214 | Anomaly: 0.63
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.64
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 182 | Anomaly: 0.50
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 200 | Anomaly: 0.57
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.60
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.65
+INFO:__main__:    Frequency: 13.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 184 | Anomaly: 0.51
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.75
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 183 | Anomaly: 0.50
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.75
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.51
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.51
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.94 | Lag: 21s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.76
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.54
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.51
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.64
+INFO:__main__:    Frequency: 14.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 182 | Anomaly: 0.51
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 200 | Anomaly: 0.57
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.61
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.65
+INFO:__main__:    Frequency: 15.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 184 | Anomaly: 0.51
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.74
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 183 | Anomaly: 0.50
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.51
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.94 | Lag: 132s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 252 | Anomaly: 0.64
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 200 | Anomaly: 0.56
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.60
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.66
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 184 | Anomaly: 0.50
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.73
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.51
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.55
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.61
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.51
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.58
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.52
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.93 | Lag: 205s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.61
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.59
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.68
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.53
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 200 | Anomaly: 0.55
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 209 | Anomaly: 0.58
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.67
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.71
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.53
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.94 | Lag: 243s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.50
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.58
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.52
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 257 | Anomaly: 0.69
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.71
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.55
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.96 | Lag: 235s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.53
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.61
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.54
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.51
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.70
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.59
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.89 | Lag: 245s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.50
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.55
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.63
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.51
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.56
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.51
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.59
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.71
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.63
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 186 | Anomaly: 0.51
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.68
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.76 | Lag: 225s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 243 | Anomaly: 0.71
+INFO:__main__:    Frequency: 9.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.66
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 182 | Anomaly: 0.53
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 186 | Anomaly: 0.54
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.70
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.52
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.58
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.66
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.51
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.53
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.58
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.51
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.61
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.60
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.70 | Lag: 35s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.54
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.59
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.68
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.52
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.54
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.59
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.60
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.58
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.66
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.67
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.64
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.63
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.64
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.64
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.64
+INFO:__main__:    Frequency: 9.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.61
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.68
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 182 | Anomaly: 0.54
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 186 | Anomaly: 0.56
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 175 | Anomaly: 0.51
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.73
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.56
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.55
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.78 | Lag: 175s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.55
+INFO:__main__:    Frequency: 11.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.63
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.50
+INFO:__main__:    Frequency: 13.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.55
+INFO:__main__:    Frequency: 11.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.56
+INFO:__main__:    Frequency: 11.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.53
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.62
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.63
+INFO:__main__:    Frequency: 13.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.60
+INFO:__main__:    Frequency: 14.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.60
+INFO:__main__:    Frequency: 15.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.60
+INFO:__main__:    Frequency: 16.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.60
+INFO:__main__:    Frequency: 17.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.61
+INFO:__main__:    Frequency: 18.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.58
+INFO:__main__:    Frequency: 19.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.58
+INFO:__main__:    Frequency: 20.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.50
+INFO:__main__:    Frequency: 18.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 7 | Anomaly: 0.50
+INFO:__main__:    Frequency: 19.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.53
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.69
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 182 | Anomaly: 0.55
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 186 | Anomaly: 0.57
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 175 | Anomaly: 0.52
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.74
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.56
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.56
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.84 | Lag: 126s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.51
+INFO:__main__:    Frequency: 20.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.52
+INFO:__main__:    Frequency: 20.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.58
+INFO:__main__:    Frequency: 20.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.59
+INFO:__main__:    Frequency: 21.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.56
+INFO:__main__:    Frequency: 22.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.56
+INFO:__main__:    Frequency: 23.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.56
+INFO:__main__:    Frequency: 24.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.56
+INFO:__main__:    Frequency: 25.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.57
+INFO:__main__:    Frequency: 26.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.54
+INFO:__main__:    Frequency: 27.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.54
+INFO:__main__:    Frequency: 28.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.53
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 215 | Anomaly: 0.69
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 185 | Anomaly: 0.50
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 182 | Anomaly: 0.55
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 186 | Anomaly: 0.57
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 175 | Anomaly: 0.52
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.74
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.56
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.56
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.95 | Lag: 19s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.55
+INFO:__main__:    Frequency: 29.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.56
+INFO:__main__:    Frequency: 30.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.53
+INFO:__main__:    Frequency: 31.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.53
+INFO:__main__:    Frequency: 32.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.53
+INFO:__main__:    Frequency: 33.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.53
+INFO:__main__:    Frequency: 34.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.54
+INFO:__main__:    Frequency: 35.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.51
+INFO:__main__:    Frequency: 36.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.51
+INFO:__main__:    Frequency: 37.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.53
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.51
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.54
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.54
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.50
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 182 | Anomaly: 0.55
+INFO:__main__:    Frequency: 9.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 186 | Anomaly: 0.57
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 175 | Anomaly: 0.52
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.74
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.56
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.58
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.97 | Lag: 4s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.52
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.53
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.50
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.50
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.51
+INFO:__main__:    Frequency: 9.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.50
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.51
+INFO:__main__:    Frequency: 11.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 11 | Anomaly: 0.51
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.52
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.52
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.58
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 182 | Anomaly: 0.57
+INFO:__main__:    Frequency: 11.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 186 | Anomaly: 0.58
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 175 | Anomaly: 0.53
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.75
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.57
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.59
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.97 | Lag: 5s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 8 | Anomaly: 0.51
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.51
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.51
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.55
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 167 | Anomaly: 0.51
+INFO:__main__:    Frequency: 13.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 175 | Anomaly: 0.54
+INFO:__main__:    Frequency: 14.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.77
+INFO:__main__:    Frequency: 15.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.59
+INFO:__main__:    Frequency: 14.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.59
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 188 | Anomaly: 0.62
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.97 | Lag: 5s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.50
+INFO:__main__:    Frequency: 9.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.50
+INFO:__main__:    Frequency: 10.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.53
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 175 | Anomaly: 0.56
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 228 | Anomaly: 0.79
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.61
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.59
+INFO:__main__:    Frequency: 7.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 188 | Anomaly: 0.64
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.94 | Lag: 4s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 158 | Anomaly: 0.51
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 161 | Anomaly: 0.52
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.63
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.58
+INFO:__main__:    Frequency: 8.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 188 | Anomaly: 0.66
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 216 | Anomaly: 0.65
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.50
+INFO:__main__:    Frequency: 11.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.50
+INFO:__main__:    Frequency: 12.0/min
+INFO:__main__:  BTCUSDT: BUY sweep
+INFO:__main__:    Volume: 13 | Anomaly: 0.50
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.88 | Lag: 4s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'
+INFO:__main__:
+
+[33m📈 MARKET BEHAVIOR DETECTION:[0m
+INFO:__main__:────────────────────────────────────────────────────────────
+INFO:__main__:
+[32mSweep Orders Detected:[0m
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.52
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 9 | Anomaly: 0.54
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  BTCUSDT: SELL sweep
+INFO:__main__:    Volume: 10 | Anomaly: 0.60
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 158 | Anomaly: 0.53
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 161 | Anomaly: 0.54
+INFO:__main__:    Frequency: 5.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.65
+INFO:__main__:    Frequency: 6.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 199 | Anomaly: 0.57
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 188 | Anomaly: 0.69
+INFO:__main__:    Frequency: 4.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 216 | Anomaly: 0.64
+INFO:__main__:    Frequency: 2.0/min
+INFO:__main__:  ETHUSDT: SELL sweep
+INFO:__main__:    Volume: 187 | Anomaly: 0.51
+INFO:__main__:    Frequency: 3.0/min
+INFO:__main__:  ETHUSDT: BUY sweep
+INFO:__main__:    Volume: 152 | Anomaly: 0.52
+INFO:__main__:    Frequency: 1.0/min
+INFO:__main__:
+[34mCross-Market Signals:[0m
+INFO:__main__:  BTCUSDT → ETHUSDT
+INFO:__main__:    Correlation: 0.78 | Lag: 3s
+INFO:__main__:
+[36mMarket Regime:[0m
+INFO:__main__:  State: NORMAL
+INFO:__main__:  Confidence: 0.0%
+INFO:__main__:────────────────────────────────────────────────────────────
+ERROR:__main__:Error in monitor loop: _log() got an unexpected keyword argument 'end'

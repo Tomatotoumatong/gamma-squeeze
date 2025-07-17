@@ -9,7 +9,7 @@ import asyncio
 import logging
 import sys
 import signal
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pandas as pd
 import numpy as np
 from typing import Optional, Dict, List, Any, Tuple
@@ -721,7 +721,7 @@ class AdaptiveGammaSqueezeSystem:
                     status_parts.append(f"Quality: {avg_quality:.2f}")
                     
                 status_line = " | ".join(status_parts)
-                timestamp = datetime.now().strftime("%H:%M:%S")
+                timestamp = (datetime.now(timezone(timedelta(hours=8)))).strftimee('%Y-%m-%d %H:%M:%S')
                 logger.info(f"[{timestamp}] - {status_line}")
                 
             except Exception as e:

@@ -59,7 +59,7 @@ class GammaPressureAnalyzer:
         result = {
             'timestamp': datetime.utcnow(),
             'gamma_distribution': {},
-            'gamma_walls': {},
+            'gamma_walls': [],
             'dealer_position': {},
             'hedge_flows': [],
             'pressure_indicators': {},
@@ -82,9 +82,8 @@ class GammaPressureAnalyzer:
             
             # 2. 识别Gamma墙
             walls = self._identify_gamma_walls(gamma_dist, spot_price)
-            if symbol not in result['gamma_walls']:
-                result['gamma_walls'][symbol] = []
-            result['gamma_walls'][symbol].extend(walls)
+            result['gamma_walls'].extend(walls)
+            
             # 3. 估算做市商头寸
             dealer_pos = self.dealer_position_tracker.estimate_position(
                 symbol_options, spot_price, gamma_dist

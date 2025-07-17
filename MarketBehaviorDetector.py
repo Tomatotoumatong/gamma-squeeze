@@ -64,7 +64,7 @@ class MarketBehaviorDetector:
             },
             'divergence': {
                 'lookback_period': 20,  # 回看周期
-                'significance_level': 0.001,  # 显著性水平
+                'significance_level': 0.05,  # 显著性水平
                 'min_duration': 3  # 最小持续周期
             },
             'cross_market': {
@@ -269,22 +269,7 @@ class MarketBehaviorDetector:
             metrics['high_quality_cross_market_rate'] = valid_signals / max(len(self.cross_market_history), 1)
         
         return metrics
-    
-    def get_ml_ready_features(self) -> Dict[str, np.ndarray]:
-        """获取ML就绪的特征供AdaptiveLearner使用"""
-        if not self.config['learning_params']['enable_ml']:
-            return {}
-        
-        # 返回最近计算的特征矩阵
-        features = {}
-        for symbol in self.anomaly_detector.anomaly_history:
-            history = self.anomaly_detector.anomaly_history[symbol]
-            if history:
-                features[symbol] = np.array([
-                    h['components']['sweep'] for h in history[-100:]
-                ])
-        
-        return features
+
 
 class OrderFlowAnalyzer:
     """订单流分析器"""
@@ -514,7 +499,7 @@ class DivergenceDetector:
         # 检测背离条件
         divergence_type = None
         
-        if abs(price_trend['slope']) > self.config['significance_level']:
+        if abs(price_trend['slope']) > 0.001:
             if price_trend['slope'] > 0 and volume_trend['slope'] < 0:
                 divergence_type = 'pv_bullish'  # 价涨量缩，可能见顶
             elif price_trend['slope'] < 0 and volume_trend['slope'] > 0:
